@@ -35,3 +35,13 @@ body{background:#0b0d10;line-height:1.55}
 #activity .cards.two{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
 #activityHistory .chips{position:sticky;top:122px;background:#0b0d10;padding:8px 0;z-index:3}
 @media(max-width:700px){.topbar{top:0}.nav{top:61px}#activity .cards.two{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#activity .cards.two>.panel{padding:12px;min-width:0}#activity .cards.two h3{font-size:14px}#activity .cards.two label{font-size:12px}#activity .cards.two input,#activity .cards.two select{padding:10px 8px;font-size:13px}#activity .cards.two .primary{width:100%;font-size:12px;padding:10px 5px}#activityHistory .chips{top:112px}}
+
+/* Navigation and challenge feedback */
+html{scroll-behavior:smooth;scroll-padding-top:140px}
+.nav{top:62px;z-index:30;box-shadow:0 8px 18px #0003}
+.page{scroll-margin-top:140px}
+.challenge-progress{height:10px!important;background:#30363d!important;border-radius:999px!important;overflow:hidden;margin:10px 0 7px}
+.challenge-progress span{display:block;height:100%;background:linear-gradient(90deg,#16a34a,#4ade80)!important;border-radius:999px;transition:width .55s cubic-bezier(.2,.75,.25,1);box-shadow:0 0 12px #22c55e55}
+.challenge-done{border-color:#22864b!important;background:linear-gradient(135deg,#10251b,#171d20)!important}
+.challenge-done strong{color:#86efac}
+@media(max-width:700px){.nav{top:61px}.page{scroll-margin-top:132px}}
