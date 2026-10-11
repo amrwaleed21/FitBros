@@ -121,3 +121,16 @@ body{font-size:15px;color:#f8f9fb;line-height:1.65}h1,h2,h3,label,strong{letter-
   #home .section-title{margin-top:15px}
 }
 @media(max-width:360px){.home-shortcuts{gap:6px}.home-shortcuts .panel{padding:10px}.home-shortcuts h3{font-size:12px}}
+
+/* Final mobile dashboard polish */
+#needsSummary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#needsSummary .needline{display:flex;flex-direction:column;align-items:flex-start;justify-content:center;min-width:0;min-height:72px;padding:12px;background:#191e24;border:1px solid #2b323a;border-radius:12px;gap:4px}
+#needsSummary .needline b{text-align:right;overflow-wrap:anywhere}
+.page:not(.hidden){animation:pageEnter .24s ease-out both}
+@keyframes pageEnter{from{opacity:.55;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+#home .quickstats{margin:10px 0 18px}
+#home .home-shortcuts .panel{display:flex;flex-direction:column;align-items:stretch;gap:8px}
+#home .home-shortcuts .panel h3{min-height:42px}
+#home .home-shortcuts .panel .secondary{margin-top:auto}
+@media(max-width:700px){#needsSummary{grid-template-columns:repeat(2,minmax(0,1fr))}#needsSummary .needline{font-size:12px;padding:10px;min-height:76px}#home .quickstats{grid-template-columns:repeat(2,minmax(0,1fr))}#home .quickstats .stat{min-height:126px}#home .home-shortcuts .panel h3{font-size:13px;min-height:38px}}
+@media(prefers-reduced-motion:reduce){.page:not(.hidden){animation:none}html{scroll-behavior:auto!important}}
