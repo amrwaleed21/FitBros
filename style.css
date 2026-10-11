@@ -45,3 +45,25 @@ body{background:#0b0d10;line-height:1.55}
 
 /* Keep the fist emojis in left-to-right order so they face each other in RTL headings. */
 .fists-facing{direction:ltr;unicode-bidi:isolate;display:inline-block;white-space:nowrap}
+
+
+/* FitBros page-based mobile redesign */
+body{font-size:15px;color:#f8f9fb;line-height:1.65}h1,h2,h3,label,strong{letter-spacing:0}p,.muted{line-height:1.7}.section-title h2{font-size:22px;font-weight:900}.panel{box-shadow:0 8px 24px #0002}.welcome{min-height:unset;padding:22px}.welcome h1{font-size:clamp(25px,4vw,34px);line-height:1.35}.quickstats .stat{min-height:155px;justify-content:center}.food-toggle{margin:8px 0 12px;border-color:#4a2b19;background:#24160f;color:#ffb27a}.food-list.hidden,.chips.hidden{display:none!important}.food-layout{align-items:start}.selected-food{order:2}.food-item{min-height:66px}.food-item strong{font-size:15px}.food-item small{font-size:12px}.navbtn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}.navbtn span{font-size:17px;line-height:1.3}.navbtn small{font-size:10px;font-weight:800;white-space:nowrap}.navbtn.active small{color:#fff}
+@media(max-width:700px){
+  .wrap{padding:12px 12px 100px}
+  .topbar{height:58px}
+  .nav{position:fixed;top:auto;bottom:0;left:0;right:0;z-index:50;margin:0;padding:7px 7px calc(7px + env(safe-area-inset-bottom));display:flex;gap:5px;overflow-x:auto;overflow-y:hidden;background:rgba(12,14,17,.98);border-top:1px solid #30343b;border-bottom:0;box-shadow:0 -8px 28px #0007;backdrop-filter:blur(18px);scroll-snap-type:x mandatory}
+  .navbtn{flex:0 0 72px;min-width:72px;min-height:52px;padding:5px 4px;border:1px solid transparent;background:transparent;border-radius:12px;scroll-snap-align:center}
+  .navbtn.active{background:#ff6a001b;border-color:#7e3b16;box-shadow:none;color:#ff9a52}
+  .navbtn small{font-size:10px}
+  .quickstats{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .stat{min-height:140px;padding:12px 8px}
+  .gauge{width:78px;height:78px}
+  .section-title{margin:19px 0 11px}
+  .section-title h2{font-size:20px}
+  .panel{padding:15px;border-radius:15px}
+  .welcome{padding:17px;margin-bottom:12px}
+  .welcome h1{font-size:25px}
+  .daily-reset-row{margin-bottom:14px}
+  #activity .cards.two{grid-template-columns:1fr}
+}
