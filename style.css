@@ -86,3 +86,38 @@ body{font-size:15px;color:#f8f9fb;line-height:1.65}h1,h2,h3,label,strong{letter-
 @media(max-width:700px){.nav{justify-content:space-around;overflow:visible;gap:3px;padding:7px 6px calc(7px + env(safe-area-inset-bottom))}.navbtn{flex:1 1 0;min-width:0;max-width:100px}.navbtn small{font-size:11px}.quickstats{margin-top:8px}.quickstats .stat{min-height:124px}.body-maps{gap:12px}.body-map svg{width:min(100%,150px);height:auto}.workout-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.workout-fields input,.workout-fields select{min-width:0}.muscle-panel{padding:14px}.recovery-grid{grid-template-columns:1fr}.shortcut-card{min-width:0}}
 .workout-builder{margin-bottom:16px;border-color:rgba(255,90,0,.28);background:linear-gradient(145deg,rgba(255,90,0,.07),rgba(255,255,255,.025))}.workout-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:14px 0}.workout-fields>div{min-width:0}.workout-fields input,.workout-fields select{width:100%;min-width:0}.body-maps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;max-width:520px;margin:16px auto;text-align:center}.body-map{display:flex;flex-direction:column;align-items:center;gap:8px}.body-map svg{width:100%;max-width:175px;max-height:290px;overflow:visible}.body-base{fill:#333a42;stroke:#6a737c;stroke-width:1.4}.muscle-zone{fill:rgba(255,90,0,.08);stroke:#ff873d;stroke-width:1;transition:fill .3s,opacity .3s}.recovery-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.recovery-item{padding:12px;border:1px solid #292d33;border-radius:13px;background:#111418}.recovery-head{display:flex;justify-content:space-between;gap:8px;align-items:center;font-size:13px}.recovery-head span{color:#ff9a52;font-size:12px;white-space:nowrap}.recovery-item .progress{margin:8px 0;height:6px}.recovery-item small{color:#a8afb8;font-size:11px}.shortcut-card{display:flex;flex-direction:column;gap:8px}.shortcut-card .secondary{width:100%}.measure-details{padding:12px;margin:12px 0;border:1px solid #343941;border-radius:12px}.measure-details summary{font-weight:800;cursor:pointer;color:#ff9a52}.measure-details label{margin-top:10px}
 @media(min-width:701px){#app .nav{position:sticky;top:66px;z-index:20}.body-maps{gap:32px}}
+
+/* Focused dashboard, dedicated muscle map, and account settings */
+.home-shortcuts{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.home-shortcuts .panel{margin:0;min-width:0;padding:14px}
+.home-shortcuts h3{font-size:14px;line-height:1.45}
+.home-shortcuts .secondary{font-size:12px;padding:9px 8px}
+#home .needsSummary{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+#muscles .muscle-panel{max-width:780px;margin-inline:auto}
+#muscles .body-maps{max-width:600px;grid-template-columns:repeat(2,minmax(0,1fr));gap:clamp(14px,5vw,42px);padding:16px 0}
+#muscles .body-map{background:linear-gradient(180deg,#191e24,#111418);border:1px solid #2b323a;border-radius:18px;padding:14px 10px}
+#muscles .body-map b{color:#ffad73;font-size:14px}
+#muscles .body-map svg{max-height:340px;max-width:200px}
+#muscles .recovery-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+#muscles .recovery-item{padding:13px}
+.settings-panel{border-color:#373d45}
+.settings-panel .danger-action{width:100%;margin-top:12px;padding:12px;background:#351b1b;color:#ffaaaa;border:1px solid #713333}
+.settings-panel .daily-reset-row{margin-top:16px}
+#app main.wrap{overflow:visible;min-height:0}
+.page{scroll-margin-top:8px;min-height:50vh}
+@media(max-width:700px){
+  .home-shortcuts{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px}
+  .home-shortcuts .panel{padding:12px}
+  .home-shortcuts .secondary{min-height:40px;white-space:normal}
+  #muscles .body-maps{gap:9px;padding:8px 0}
+  #muscles .body-map{padding:10px 5px}
+  #muscles .body-map svg{width:100%;max-width:145px;max-height:255px}
+  #muscles .recovery-grid{grid-template-columns:1fr}
+  #muscles .muscle-panel{padding:12px}
+  #app .nav{justify-content:space-between;overflow-x:auto;overflow-y:hidden}
+  #app .navbtn{flex:1 0 0;min-width:0;padding-inline:2px}
+  #app .navbtn span{font-size:16px}
+  #app .navbtn small{font-size:9px}
+  #home .section-title{margin-top:15px}
+}
+@media(max-width:360px){.home-shortcuts{gap:6px}.home-shortcuts .panel{padding:10px}.home-shortcuts h3{font-size:12px}}
