@@ -166,3 +166,22 @@ body{font-size:15px;color:#f8f9fb;line-height:1.65}h1,h2,h3,label,strong{letter-
 }
 :where(button:disabled,input:disabled){filter:saturate(.5);cursor:not-allowed}
 @media(prefers-reduced-motion:reduce){:where(button,a,[role="button"],input[type="button"],input[type="submit"],input[type="reset"],summary,.navbtn,.settings-link,.shortcut-card,.clickable){transition:none!important}}
+
+
+/* Reliable mobile press feedback: remove Android/WebView blue tap flash and add visible orange glow */
+html, body, body * { -webkit-tap-highlight-color: transparent !important; }
+button, a, [role="button"], input[type="button"], input[type="submit"], input[type="reset"], summary, select, label, .navbtn, .chip, .food-item, .pill, .textbtn, .settings-link, .donebtn, .deletebtn, .waterbtn {
+  -webkit-tap-highlight-color: transparent !important;
+  outline: none;
+  -webkit-touch-callout: none;
+  touch-action: manipulation;
+}
+button:focus:not(:focus-visible), a:focus:not(:focus-visible), [role="button"]:focus:not(:focus-visible), input:focus:not(:focus-visible), select:focus:not(:focus-visible) { outline: none !important; }
+.fitbros-pressed, button.fitbros-pressed, a.fitbros-pressed, [role="button"].fitbros-pressed, input.fitbros-pressed, summary.fitbros-pressed, label.fitbros-pressed, .chip.fitbros-pressed, .food-item.fitbros-pressed, .pill.fitbros-pressed {
+  transform: scale(.965) !important;
+  filter: brightness(1.18) !important;
+  border-color: #ff7a24 !important;
+  box-shadow: 0 0 0 2px rgba(255,105,0,.28), 0 0 16px 4px rgba(255,94,0,.55), inset 0 0 12px rgba(255,112,25,.18) !important;
+  transition: transform .09s ease, box-shadow .12s ease, filter .12s ease !important;
+}
+@media (prefers-reduced-motion: reduce) { .fitbros-pressed { transition: none !important; } }
