@@ -139,3 +139,30 @@ body{font-size:15px;color:#f8f9fb;line-height:1.65}h1,h2,h3,label,strong{letter-
 
 /* Exercise target-muscle chips */
 .workout-targets{grid-column:1/-1;padding:10px 12px;border:1px solid rgba(255,90,0,.22);border-radius:14px;background:rgba(255,90,0,.045)}.target-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:9px}.target-chip{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;border:1px solid rgba(255,90,0,.3);background:rgba(255,90,0,.09);font-size:.82rem}.target-chip b{color:var(--orange,#ff5a00)}.muscle-zone{stroke:rgba(255,255,255,.45);stroke-width:.7;transition:fill .25s,opacity .25s}
+
+/* Universal FitBros touch feedback: soft orange glow on every interactive control */
+:where(button,a,[role="button"],input[type="button"],input[type="submit"],input[type="reset"],summary,.navbtn,.settings-link,.shortcut-card,.clickable){
+  -webkit-tap-highlight-color:transparent;
+  touch-action:manipulation;
+  transition:transform .16s ease,box-shadow .18s ease,border-color .18s ease,background-color .18s ease,filter .18s ease;
+}
+:where(button,a,[role="button"],input[type="button"],input[type="submit"],input[type="reset"],summary,.navbtn,.settings-link,.shortcut-card,.clickable):active{
+  transform:scale(.97);
+  filter:brightness(1.13);
+  box-shadow:0 0 0 2px rgba(255,90,0,.22),0 0 13px rgba(255,90,0,.42),inset 0 0 9px rgba(255,90,0,.10);
+  border-color:rgba(255,115,35,.9)!important;
+}
+:where(button,a,[role="button"],input[type="button"],input[type="submit"],input[type="reset"],summary,.navbtn,.settings-link,.shortcut-card,.clickable):focus-visible{
+  outline:2px solid rgba(255,115,35,.95);
+  outline-offset:3px;
+  box-shadow:0 0 0 4px rgba(255,90,0,.12),0 0 18px rgba(255,90,0,.28);
+}
+@media(hover:hover) and (pointer:fine){
+  :where(button,a,[role="button"],input[type="button"],input[type="submit"],input[type="reset"],summary,.navbtn,.settings-link,.shortcut-card,.clickable):hover:not(:disabled){
+    border-color:rgba(255,115,35,.65);
+    box-shadow:0 0 0 1px rgba(255,90,0,.12),0 0 15px rgba(255,90,0,.20);
+    filter:brightness(1.06);
+  }
+}
+:where(button:disabled,input:disabled){filter:saturate(.5);cursor:not-allowed}
+@media(prefers-reduced-motion:reduce){:where(button,a,[role="button"],input[type="button"],input[type="submit"],input[type="reset"],summary,.navbtn,.settings-link,.shortcut-card,.clickable){transition:none!important}}
