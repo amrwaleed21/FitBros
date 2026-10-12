@@ -1,11 +1,9 @@
-FitBros AI Food Fix — Updated
+خطوات إصلاح تحليل صورة الطعام في FitBros
 
-التعديل: قبل تحليل الصورة، يحاول التطبيق استعادة جلسة Supabase إذا لم يظهر access token، ثم يرسل Bearer token صراحةً إلى analyze-food. لم يتم تعطيل حماية تسجيل الدخول.
-
-الخطوات:
-1) استبدل app.js في GitHub بالملف FitBros-Updated/app.js ثم اعمل Commit.
-2) في Supabase > Edge Functions > analyze-food، استبدل index.ts بالملف FitBros-Updated/supabase/functions/analyze-food/index.ts ثم Deploy updates.
-3) تأكد من وجود GEMINI_API_KEY في Secrets.
-4) افتح FitBros من جديد، سجّل خروج ثم دخول، وجرب تحليل الصورة من داخل التطبيق.
-
-مهم: إذا ظهرت رسالة Missing user access token عند الضغط على Test في لوحة Supabase، فهذا متوقع لأن اختبار اللوحة لا يحمل جلسة المستخدم تلقائيًا. اختبر من داخل FitBros بعد تسجيل الدخول. لا نلغي التحقق من المستخدم لحل هذا، لأنه سيجعل الدالة متاحة بدون جلسة مستخدم.
+1) ارفع app.js و index.html من هذه الحزمة إلى نفس مستودع GitHub الذي ينشر FitBros، ثم Commit/Deploy. تم تغيير رقم نسخة app.js لمنع استخدام نسخة مخزنة قديمة.
+2) في app.js يتم إرسال Authorization: Bearer <access_token> مباشرةً عبر fetch إلى عنوان Edge Function المكوّن من FITBROS_SUPABASE_URL الموجود في supabase-config.js.
+3) افتح Supabase للمشروع الذي عنوانه يطابق FITBROS_SUPABASE_URL في supabase-config.js، ثم Edge Functions > analyze-food، والصق index.ts الموجود في الحزمة واضغط Deploy updates. تأكد أن عنوان Function هو https://qscjkoqxrytxgzrzntsf.supabase.co/functions/v1/analyze-food إذا لم تغيّر إعداد المشروع.
+4) تأكد أن GEMINI_API_KEY موجود في Edge Function Secrets. لا تضعه في ملفات الموقع.
+5) افتح رابط الموقع المنشور في Chrome، سجّل خروجًا ثم دخولًا، وجرّب التحليل. لو التطبيق APK مبني من WebView، أعد فتحه بعد نشر الملفات؛ ولو ما زال يحمل الموقع القديم فحدّث رابط الموقع/امسح ذاكرة التطبيق أو أعد بناء APK حسب تطبيق Web-to-App المستخدم.
+6) طابق رسالة الخطأ: النسخة الحالية من index.ts تُرجع رسالة Missing user access token تبدأ بـ “This function requires a signed-in FitBros user”. إذا ظهرت الرسالة القديمة “Missing user access token. Sign in again in FitBros.” فهذا دليل أن الطلب وصل إلى نسخة قديمة أو مشروع/دالة مختلفة.
+7) اختبر من داخل FitBros بعد تسجيل الدخول، وليس من زر Test في لوحة Supabase؛ الاختبار من اللوحة لا يملك جلسة المستخدم تلقائيًا.
