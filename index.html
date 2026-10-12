@@ -27,12 +27,17 @@
 (function () {
   const splash = document.getElementById('fitbrosSplash');
   if (!splash) return;
-  // Always dismiss the intro after exactly five seconds so it cannot block login/app.
-  window.setTimeout(function () {
+  // JS fallback; CSS independently hides the splash after five seconds.
+  const dismiss = function () {
+    if (!splash || !splash.isConnected || splash.classList.contains('is-leaving')) return;
     splash.classList.add('is-leaving');
     window.setTimeout(function () {
       if (splash && splash.parentNode) splash.parentNode.removeChild(splash);
-    }, 900);
-  }, 5000);
+    }, 700);
+  };
+  window.setTimeout(dismiss, 5000);
+  splash.addEventListener('animationend', function (event) {
+    if (event.animationName === 'splashAutoDismiss') dismiss();
+  });
 })();
 </script></body></html>
