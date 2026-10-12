@@ -245,3 +245,5 @@ button:focus:not(:focus-visible), a:focus:not(:focus-visible), [role="button"]:f
 
 /* Live GPS route map */
 .gps-map-title{margin:18px 0 10px}.gps-map{height:260px;width:100%;border-radius:16px;overflow:hidden;border:1px solid rgba(255,112,24,.35);background:#202328;z-index:0}.gps-map .leaflet-control-attribution{font-size:9px}.gps-route-mini{height:100px;width:100%;border-radius:12px;background:#202328;display:block;margin-top:10px}.gps-map .leaflet-tile{filter:saturate(.8)}
+
+.home-workout-panel{border-color:rgba(255,101,0,.42);background:linear-gradient(145deg,#1c130d,#141414 60%)}.home-workout-panel h3{color:#ff9a54}.target-chips{display:flex;flex-wrap:wrap;gap:7px;margin:8px 0 14px}.target-chip{background:#2a211b;border:1px solid #50331f;border-radius:999px;padding:5px 9px;font-size:11px;color:#ffd0ad}.workout-fields{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}@media(max-width:520px){.workout-fields{grid-template-columns:1fr 1fr}.workout-fields>div:last-child{grid-column:1/-1}}

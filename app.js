@@ -117,7 +117,23 @@ const EXERCISES={
  'wall-sit':{name:'Wall Sit — جلوس الحائط',targets:{quads:.65,glutes:.18,calves:.07,abs:.10},timed:true},
  plank:{name:'Plank — بلانك',targets:{abs:.55,obliques:.20,shoulders:.10,glutes:.08,quads:.07},timed:true},
  crunch:{name:'Crunch — كرنش',targets:{abs:.75,obliques:.20,frontDelts:.05}},
- 'leg-raise':{name:'Leg Raise — رفع الرجل',targets:{abs:.55,quads:.20,obliques:.15,hipFlexors:.10}}
+ 'leg-raise':{name:'Leg Raise — رفع الرجل',targets:{abs:.55,quads:.20,obliques:.15,hipFlexors:.10}},
+ 'goblet-squat':{name:'Goblet Squat — سكوات دامبل',targets:{quads:.42,glutes:.32,hamstrings:.12,abs:.14}},
+ 'weighted-squat':{name:'Weighted Squat — سكوات بأوزان',targets:{quads:.42,glutes:.32,hamstrings:.14,abs:.12}},
+ 'side-plank':{name:'Side Plank — بلانك جانبي',targets:{obliques:.55,abs:.25,shoulders:.12,glutes:.08},timed:true},
+ 'bicep-curl':{name:'Dumbbell Biceps Curl — باي دامبل',targets:{biceps:.75,forearms:.25}},
+ 'triceps-extension':{name:'Dumbbell Triceps Extension — تراي دامبل',targets:{triceps:.8,shoulders:.1,forearms:.1}},
+ 'shoulder-press':{name:'Dumbbell Shoulder Press — ضغط كتف',targets:{shoulders:.55,frontDelts:.25,triceps:.2}},
+ 'lateral-raise':{name:'Dumbbell Lateral Raise — رفرفة جانبي',targets:{sideDelts:.8,shoulders:.1,forearms:.1}},
+ 'dumbbell-row':{name:'Dumbbell Row — سحب دامبل',targets:{back:.35,lats:.3,biceps:.18,rearDelts:.1,forearms:.07}},
+ 'romanian-deadlift':{name:'Dumbbell Romanian Deadlift',targets:{hamstrings:.42,glutes:.32,lowerBack:.16,forearms:.1}},
+ 'band-pull-apart':{name:'Resistance Band Pull-Apart',targets:{rearDelts:.45,back:.3,shoulders:.15,forearms:.1}},
+ 'band-row':{name:'Resistance Band Row',targets:{back:.35,lats:.3,biceps:.2,rearDelts:.1,forearms:.05}},
+ 'jumping-jacks':{name:'Jumping Jacks',targets:{calves:.25,quads:.2,shoulders:.2,abs:.15,glutes:.2},timed:true},
+ 'burpee':{name:'Burpees',targets:{chest:.2,quads:.2,glutes:.18,shoulders:.15,abs:.15,calves:.12}},
+ 'mountain-climber':{name:'Mountain Climbers',targets:{abs:.4,shoulders:.2,quads:.2,glutes:.1,obliques:.1}},
+ 'calf-stretch':{name:'Calf Stretch — إطالة السمانة',targets:{calves:.8,hamstrings:.2},timed:true},
+ 'hamstring-stretch':{name:'Hamstring Stretch — إطالة خلفية الفخذ',targets:{hamstrings:.75,glutes:.15,lowerBack:.1},timed:true},
 };
 MUSCLES.hipFlexors='مثنيات الورك';
 function setupWorkoutBuilder(){if(!$('workoutDate'))return;$('workoutDate').value=today();const updateTargets=()=>{const ex=EXERCISES[$('workoutExercise').value];if($('workoutTargets'))$('workoutTargets').innerHTML=ex?Object.entries(ex.targets).sort((a,b)=>b[1]-a[1]).map(([m,w])=>`<span class="target-chip">${MUSCLES[m]} <b>${Math.round(w*100)}%</b></span>`).join(''):'—';if(ex?.timed){$('workoutReps').value=0;$('workoutSeconds').value=30}else{$('workoutReps').value=10;$('workoutSeconds').value=0}};$('workoutExercise').addEventListener('change',updateTargets);updateTargets();$('saveWorkoutSet').addEventListener('click',()=>{const key=$('workoutExercise').value,ex=EXERCISES[key],sets=+$('workoutSets').value,reps=+$('workoutReps').value,seconds=+$('workoutSeconds').value,date=$('workoutDate').value||today();if(!ex||!(sets>0&&sets<=20)||(!(reps>0)&&!(seconds>0))){alert('راجع عدد المجاميع والعدات أو الثواني.');return}const id=Date.now()+Math.random();db.logs.push({type:'workout',who:current,title:ex.name,exerciseKey:key,targets:ex.targets,sets,reps:reps||0,seconds:seconds||0,date,createdAt:date===today()?Date.now():new Date(date+'T12:00:00').getTime(),id});addPoints(current,sets*2);save();renderAll();});}
