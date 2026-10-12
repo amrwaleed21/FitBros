@@ -1,0 +1,13 @@
+FITBROS AI FOOD FIX
+
+سبب الإصلاح: التطبيق الآن يرسل access token الصالح صراحةً إلى Edge Function بدل الاعتماد على الإرسال التلقائي. تم الإبقاء على التحقق من تسجيل الدخول.
+
+الخطوات:
+1) من هذا الملف المضغوط، استبدل app.js في مستودع GitHub بالنسخة الموجودة في FitBros-Updated/app.js ثم اعمل Commit.
+2) افتح Supabase > Edge Functions > analyze-food > Code، واستبدل index.ts بالنسخة الموجودة في FitBros-Updated/supabase/functions/analyze-food/index.ts ثم Deploy updates.
+3) تأكد أن Secret GEMINI_API_KEY موجود، ولا ترسله لأي شخص.
+4) افتح موقع FitBros من جديد، سجّل خروج ثم دخول، وجرب صورة.
+
+مهم: لا تختبر function من لوحة Supabase بدون Authorization؛ اختبار اللوحة قد لا يحتوي جلسة المستخدم. جرّب من داخل التطبيق.
+
+إذا ظهر خطأ Gemini بعد ذلك، فالاستجابة ستكون مختلفة عن خطأ تسجيل الدخول، وهذا يساعد في تحديد الخطوة التالية. لا تضع مفاتيح سرية في ملفات الواجهة أو GitHub.
