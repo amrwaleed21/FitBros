@@ -1,20 +1,14 @@
 # إعداد تصوير الأكل بالـ AI في FitBros (مجاني قدر الإمكان)
 
-واجهة التصوير والتعديل مضافة بالفعل. التعرف الحقيقي على الصورة يحتاج نشر Edge Function مرة واحدة وإضافة مفتاح مزود AI كـ Secret؛ لا تضع المفتاح في `app.js` أو أي ملف يصل للمتصفح.
+واجهة التصوير والتعديل مضافة بالفعل. بعد نشر Edge Function باسم `analyze-food` وإضافة `GEMINI_API_KEY` في Supabase Secrets، يرسل التطبيق الصورة للدالة ويعرض الأصناف القابلة للتعديل قبل تسجيلها. لا تضع المفتاح في `app.js` أو أي ملف يصل للمتصفح.
 
 ## الخطوات
 
 1. افتح مشروعك في Supabase Dashboard وتأكد أن تسجيل الدخول بالبريد وكلمة المرور يعمل.
 2. أنشئ مفتاح Gemini من Google AI Studio: https://aistudio.google.com/app/apikey . قد يتوفر مستوى مجاني بحدود استخدام تتغير حسب البلد والحساب والموديل؛ راجع الشروط الحالية قبل الاعتماد عليه.
-3. نزّل وثبّت Supabase CLI، ثم افتح Terminal في مجلد المشروع الذي يحتوي مجلد `supabase`.
-4. سجّل الدخول واربط المشروع (استخدم Project Ref من إعدادات Supabase):
-
-```bash
-supabase login
-supabase link --project-ref YOUR_PROJECT_REF
-supabase secrets set GEMINI_API_KEY=YOUR_GEMINI_API_KEY
-supabase functions deploy analyze-food
-```
+3. في Supabase Dashboard افتح Edge Functions وأنشئ/انشر الدالة باسم `analyze-food` من المحرر.
+4. من Secrets تأكد أن `GEMINI_API_KEY` موجود، ثم جرّب الميزة داخل التطبيق بعد تسجيل الدخول.
+5. الكود الحالي في واجهة FitBros يقبل رد الدالة بصيغة `foods` أو بصيغة `items` (مثل `name`, `quantity`, `calories`, `protein`, `carbs`, `fat`).
 
 5. جرّب الميزة من الموقع بعد تسجيل الدخول. الدالة تتحقق من جلسة Supabase، ومفتاح Gemini يبقى في Secrets على الخادم.
 
