@@ -297,3 +297,6 @@ body{background:radial-gradient(ellipse at 8% 0%,rgba(255,106,0,.105),transparen
 @keyframes splashLine{from{opacity:0;transform:scaleX(.4) rotate(-4deg)}to{opacity:1;transform:scaleX(1) rotate(-4deg)}}
 @keyframes splashLoading{0%{transform:translateX(-140%)}55%{transform:translateX(145%)}100%{transform:translateX(330%)}}
 @media(prefers-reduced-motion:reduce){.fitbros-splash,.splash-content,.splash-icon,.splash-underline,.splash-progress span{animation:none!important;transition:none!important}}
+
+/* Smooth, continuous splash loading bar and compact daily history */
+.splash-progress span{width:0;animation:splashLoading 4.55s linear forwards!important;will-change:width,transform;transform:translateZ(0)}@keyframes splashLoading{0%{width:0}100%{width:100%}}.history-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.history-metrics>div{background:#1d2228;border:1px solid #2d343c;border-radius:11px;padding:10px}.history-metrics small{display:block;color:var(--muted);font-size:11px}.history-metrics b{display:block;color:#ffb27a;font-size:14px;margin-top:3px}.history-day h3{margin-bottom:12px}@media(min-width:650px){.history-metrics{grid-template-columns:repeat(4,minmax(0,1fr))}}
