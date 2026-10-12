@@ -42,8 +42,25 @@ async function gpsStart(){
  }catch(err){gps.active=false;gps.paused=false;if(gps.timer)clearInterval(gps.timer);gps.timer=null;if(gps.watchId!==null)navigator.geolocation.clearWatch(gps.watchId);gps.watchId=null;const msg=err.code===1?'إذن الموقع مرفوض. من إعدادات Android > التطبيقات > تطبيق FitBros/Web to App > الأذونات > الموقع، اسمح أثناء الاستخدام. لو خيار الموقع غير موجود، أداة Web to App تحتاج تفعيل Location permission وإعادة بناء APK.':err.code===2?'الموقع غير متاح. فعّل Location/GPS ودقة الموقع من إعدادات الهاتف، وجرّب في مكان مفتوح بعيدًا عن المباني.':err.code===3?'انتهت مهلة تحديد الموقع. فعّل GPS، افتح نافذة/مكانًا مفتوحًا وانتظر ثم جرّب مرة أخرى.':(err.message||'تعذر الحصول على موقعك. تأكد من إذن الموقع وGPS.');gpsStatus('❌ لم يبدأ التسجيل: '+msg);gpsRender();}
  finally{if($('gpsStart'))$('gpsStart').disabled=gps.active&&!gps.paused}
 }
-function gpsPosition(pos){if(!gps.active||gps.paused)return;const c=pos.coords,now=pos.timestamp||Date.now();if(!Number.isFinite(c.latitude)||!Number.isFinite(c.longitude))return;if(c.accuracy&&c.accuracy>60){gpsStatus(`إشارة GPS ضعيفة (دقة نحو ${Math.round(c.accuracy)} م). انتظر إشارة أفضل.`);return}const point={lat:c.latitude,lon:c.longitude,at:now,accuracy:c.accuracy||null};if(gps.last){const d=gpsHaversine(gps.last,point),dt=(now-gps.last.at)/1000; // Ignore GPS jumps and stationary noise.
-if(dt>0&&d>=0.006&&d/dt<8){gps.km+=d;gps.points.push(point)}else if(d<0.006){/* ignore jitter */}else if(d/dt>=8){gpsStatus('تم تجاهل قفزة GPS غير دقيقة؛ استمر في التسجيل.')}}else gps.points.push(point);gps.last=point;gps.lastFixAt=Date.now();if(gps.points.length===1)gpsStatus('تم تحديد موقعك. التسجيل شغال — خليك فاتح الصفحة.');else gpsStatus(`التسجيل شغال · دقة الموقع ${Math.round(c.accuracy||0)} متر`);gpsRender()}
+function gpsPosition(pos){
+ if(!gps.active||gps.paused)return;
+ const c=pos.coords,now=pos.timestamp||Date.now();
+ if(!Number.isFinite(c.latitude)||!Number.isFinite(c.longitude))return;
+ const accuracy=Number(c.accuracy)||999;
+ // Phone WebViews often report 30–80 m accuracy even when GPS is usable.
+ if(accuracy>100){gpsStatus(`إشارة الموقع لسه ضعيفة (الدقة ${Math.round(accuracy)} م). انتظر أو انتقل لمكان مفتوح.`);return}
+ const point={lat:c.latitude,lon:c.longitude,at:now,accuracy};
+ if(!gps.last){gps.last=point;gps.points.push(point);gps.lastFixAt=Date.now();gpsStatus(`تم تثبيت موقع البداية (دقة ${Math.round(accuracy)} م). اتحرك لبدء حساب المسافة.`);gpsRender();return}
+ const d=gpsHaversine(gps.last,point),dt=(now-gps.last.at)/1000;
+ if(dt<=0)return;
+ // Keep the previous accepted fix when ignoring jitter, so small steps accumulate instead of resetting every GPS update.
+ const noiseKm=Math.max(0.0025,Math.min(0.008,((accuracy+(gps.last.accuracy||accuracy))/2)/1000));
+ const speedKmh=(d/dt)*3600;
+ if(d<noiseKm){gps.lastFixAt=Date.now();gpsRender();return}
+ if(speedKmh>35){gpsStatus('تم تجاهل قفزة GPS غير منطقية؛ استمر في الحركة وانتظر تحديث الموقع.');gpsRender();return}
+ gps.km+=d;gps.last=point;gps.points.push(point);gps.lastFixAt=Date.now();
+ gpsStatus(`التسجيل شغال · دقة الموقع ${Math.round(accuracy)} متر · ${gps.km.toFixed(2)} كم`);gpsRender()
+}
 function gpsHaversine(a,b){const rad=x=>x*Math.PI/180,R=6371,dLat=rad(b.lat-a.lat),dLon=rad(b.lon-a.lon),v=Math.sin(dLat/2)**2+Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(dLon/2)**2;return 2*R*Math.asin(Math.min(1,Math.sqrt(v)))}
 function gpsError(err){const msg=err.code===1?'إذن الموقع مرفوض من APK. افتح إعدادات Android > التطبيقات > FitBros/Web to App > الأذونات > الموقع واسمح أثناء الاستخدام. لو الصلاحية غير موجودة، يجب تفعيلها في أداة إنشاء APK وإعادة بنائه.':err.code===2?'الموقع غير متاح حاليًا؛ فعّل GPS ودقة الموقع وحاول في مكان مفتوح.':'تحديد الموقع أخذ وقتًا طويلًا؛ تأكد من إشارة GPS.';gpsStatus('⚠️ '+msg);if(!gps.lastFixAt&&gps.active){gps.active=false;gps.paused=false;if(gps.watchId!==null)navigator.geolocation.clearWatch(gps.watchId);gps.watchId=null;if(gps.timer)clearInterval(gps.timer);gps.timer=null;gpsRender()}}
 function gpsDiscard(){if(!confirm('تمسح التسجيل الحالي بالكامل من غير حفظه؟'))return;if(gps.watchId!==null&&navigator.geolocation)navigator.geolocation.clearWatch(gps.watchId);if(gps.timer)clearInterval(gps.timer);gps.active=false;gps.paused=false;gps.watchId=null;gps.timer=null;gps.startAt=0;gps.elapsedBeforePause=0;gps.km=0;gps.last=null;gps.points=[];gps.lastFixAt=0;try{localStorage.removeItem('fitbros_gps_incomplete_v1')}catch(e){}gpsStatus('تم إلغاء التسجيل ومسح بياناته بدون حفظ.');gpsRender()}
