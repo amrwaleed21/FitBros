@@ -220,3 +220,8 @@ button:focus:not(:focus-visible), a:focus:not(:focus-visible), [role="button"]:f
 .compare-body-stats span>span{display:inline;flex:0 0 auto;color:var(--muted,#aaa)}
 .compare-body-stats b{margin-inline-start:auto}
 @media(max-width:420px){.compare-metric-icon,.compare-body-icon{width:36px;height:36px;flex-basis:36px;border-radius:12px}.compare-icon-svg{width:21px;height:21px}.compare-metric-head{gap:8px}.compare-metric-head b{font-size:.76rem}}
+
+/* Icon visibility hardening: inline SVG does not depend on external icon fonts */
+.compare-metric-icon,.compare-body-icon{overflow:visible;line-height:0}
+.compare-icon-svg{display:block!important;width:24px!important;height:24px!important;min-width:24px;opacity:1!important;visibility:visible!important}
+.compare-icon-svg path{stroke:currentColor!important;fill:none!important;vector-effect:non-scaling-stroke}
