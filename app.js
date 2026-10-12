@@ -44,22 +44,24 @@ async function gpsStart(){
 }
 function gpsPosition(pos){
  if(!gps.active||gps.paused)return;
- const c=pos.coords,now=pos.timestamp||Date.now();
+ const c=pos.coords,now=Number(pos.timestamp)||Date.now();
  if(!Number.isFinite(c.latitude)||!Number.isFinite(c.longitude))return;
  const accuracy=Number(c.accuracy)||999;
- // Phone WebViews often report 30–80 m accuracy even when GPS is usable.
- if(accuracy>100){gpsStatus(`إشارة الموقع لسه ضعيفة (الدقة ${Math.round(accuracy)} م). انتظر أو انتقل لمكان مفتوح.`);return}
  const point={lat:c.latitude,lon:c.longitude,at:now,accuracy};
- if(!gps.last){gps.last=point;gps.points.push(point);gps.lastFixAt=Date.now();gpsStatus(`تم تثبيت موقع البداية (دقة ${Math.round(accuracy)} م). اتحرك لبدء حساب المسافة.`);gpsRender();return}
+ // Keep a visible diagnostic even when the WebView returns a weak fix.
+ gps.lastFixAt=Date.now();
+ if(accuracy>150){gpsStatus(`📡 وصل تحديث موقع لكن الدقة ضعيفة (${Math.round(accuracy)}م). انتقل لمكان مفتوح وانتظر GPS أدق.`);gpsRender();return}
+ if(!gps.last){gps.last=point;gps.points.push(point);gpsStatus(`📍 تم تثبيت نقطة البداية (دقة ${Math.round(accuracy)}م). اتحرك عدة أمتار لاحتساب المسافة.`);gpsRender();return}
  const d=gpsHaversine(gps.last,point),dt=(now-gps.last.at)/1000;
- if(dt<=0)return;
- // Keep the previous accepted fix when ignoring jitter, so small steps accumulate instead of resetting every GPS update.
- const noiseKm=Math.max(0.0015,Math.min(0.004,((accuracy+(gps.last.accuracy||accuracy))/2)/4000));
+ if(dt<=0){gpsStatus('📡 وصل موقع مكرر؛ في انتظار تحديث جديد…');gpsRender();return}
  const speedKmh=(d/dt)*3600;
- if(d<noiseKm){gps.lastFixAt=Date.now();gpsRender();return}
- if(speedKmh>35){gpsStatus('تم تجاهل قفزة GPS غير منطقية؛ استمر في الحركة وانتظر تحديث الموقع.');gpsRender();return}
- gps.km+=d;gps.last=point;gps.points.push(point);gps.lastFixAt=Date.now();
- gpsStatus(`التسجيل شغال · دقة الموقع ${Math.round(accuracy)} متر · ${gps.km.toFixed(2)} كم`);gpsRender()
+ // Ignore tiny GPS drift, but keep the last accepted point so walking movement can accumulate.
+ const accuracyFloor=Math.max(2,Math.min(8,((accuracy+(gps.last.accuracy||accuracy))/2)*0.06));
+ const noiseKm=accuracyFloor/1000;
+ if(d<noiseKm){gpsStatus(`📡 GPS شغال (دقة ${Math.round(accuracy)}م)، في انتظار حركة واضحة…`);gpsRender();return}
+ if(speedKmh>40){gpsStatus(`تم تجاهل قفزة GPS غير منطقية (${speedKmh.toFixed(1)} كم/س). في انتظار نقطة أدق.`);gpsRender();return}
+ gps.km+=d;gps.last=point;gps.points.push(point);
+ gpsStatus(`✅ تم تحديث المسافة · دقة ${Math.round(accuracy)}م · ${gps.km.toFixed(3)} كم`);gpsRender();
 }
 function gpsHaversine(a,b){const rad=x=>x*Math.PI/180,R=6371,dLat=rad(b.lat-a.lat),dLon=rad(b.lon-a.lon),v=Math.sin(dLat/2)**2+Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(dLon/2)**2;return 2*R*Math.asin(Math.min(1,Math.sqrt(v)))}
 function gpsError(err){const msg=err.code===1?'إذن الموقع مرفوض من APK. افتح إعدادات Android > التطبيقات > FitBros/Web to App > الأذونات > الموقع واسمح أثناء الاستخدام. لو الصلاحية غير موجودة، يجب تفعيلها في أداة إنشاء APK وإعادة بنائه.':err.code===2?'الموقع غير متاح حاليًا؛ فعّل GPS ودقة الموقع وحاول في مكان مفتوح.':'تحديد الموقع أخذ وقتًا طويلًا؛ تأكد من إشارة GPS.';gpsStatus('⚠️ '+msg);if(!gps.lastFixAt&&gps.active){gps.active=false;gps.paused=false;if(gps.watchId!==null)navigator.geolocation.clearWatch(gps.watchId);gps.watchId=null;if(gps.timer)clearInterval(gps.timer);if(gps.pollTimer)clearInterval(gps.pollTimer);gps.pollTimer=null;gps.timer=null;gpsRender()}}
