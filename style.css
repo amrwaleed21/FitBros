@@ -281,7 +281,7 @@ body{background:radial-gradient(ellipse at 8% 0%,rgba(255,106,0,.105),transparen
 
 /* Cinematic FitBros startup splash */
 .fitbros-splash{position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#070707 url('./background.png') center center/cover no-repeat;opacity:1;visibility:visible;transition:opacity .85s ease,visibility .85s ease;isolation:isolate}
-.fitbros-splash:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.42),rgba(0,0,0,.58)),radial-gradient(ellipse at 50% 44%,rgba(255,91,0,.13),transparent 46%);backdrop-filter:blur(1.5px);z-index:-1}
+.fitbros-splash:before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.62),rgba(0,0,0,.72)),radial-gradient(ellipse at 50% 44%,rgba(255,91,0,.08),transparent 46%);backdrop-filter:blur(2.5px);z-index:-1}
 .fitbros-splash.is-leaving{opacity:0;visibility:hidden;pointer-events:none}
 .splash-content{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;width:100%;padding:24px;text-align:center;animation:splashRise 1s cubic-bezier(.2,.75,.25,1) both}
 .splash-icon{display:block;width:clamp(150px,43vw,230px);height:clamp(150px,43vw,230px);object-fit:contain;border-radius:27%;filter:drop-shadow(0 0 16px rgba(255,91,0,.45));animation:splashIconIn 1.05s cubic-bezier(.2,.75,.25,1) both}
