@@ -302,3 +302,15 @@ body{background:radial-gradient(ellipse at 8% 0%,rgba(255,106,0,.105),transparen
 .splash-progress span{width:0;animation:splashLoading 4.55s linear forwards!important;will-change:width,transform;transform:translateZ(0)}@keyframes splashLoading{0%{width:0}100%{width:100%}}.history-metrics{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.history-metrics>div{background:#1d2228;border:1px solid #2d343c;border-radius:11px;padding:10px}.history-metrics small{display:block;color:var(--muted);font-size:11px}.history-metrics b{display:block;color:#ffb27a;font-size:14px;margin-top:3px}.history-day h3{margin-bottom:12px}@media(min-width:650px){.history-metrics{grid-template-columns:repeat(4,minmax(0,1fr))}}
 
 .history-day-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;text-align:right;gap:12px;background:transparent;border:0;color:var(--white);padding:2px 0 12px;cursor:pointer}.history-day-toggle h3{margin:0}.history-day-content{padding-top:4px}.history-day-food{margin-top:12px}.history-food-row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #ffffff12}.history-food-row:last-child{border-bottom:0}.history-day-actions{display:flex;justify-content:flex-end;margin-top:12px}
+
+/* Explicit left-to-right progress fill, independent of the RTL page direction */
+.splash-progress{direction:ltr;position:relative;isolation:isolate}
+.splash-progress span{display:block;width:100%!important;transform:scaleX(0);transform-origin:left center;animation:splashFillLTR 4.55s linear forwards!important}
+@keyframes splashFillLTR{from{transform:scaleX(0)}to{transform:scaleX(1)}}
+.history-day-toggle{direction:ltr;flex-direction:row;text-align:left}
+.history-day-toggle>*{direction:rtl}
+.history-date-title{font-weight:700}
+.history-chevron{display:inline-block;margin-inline-start:5px;transition:transform .2s ease}
+.history-day-toggle[aria-expanded="true"] .history-chevron{transform:rotate(180deg)}
+.history-food-row span{display:flex;flex-direction:column;gap:3px}
+.history-food-row span small{font-size:12px}
