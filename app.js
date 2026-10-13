@@ -43,45 +43,54 @@ async function gpsStart(){
   if(navigator.permissions?.query){try{const perm=await navigator.permissions.query({name:'geolocation'});if(perm.state==='denied')throw new Error('إذن الموقع مرفوض من المتصفح. افتح إعدادات الموقع للموقع واسمح به، ثم فعّل Location/GPS في الهاتف.');}catch(e){if(e.message&&e.message.includes('إذن الموقع'))throw e;}}
   const first=await new Promise((resolve,reject)=>navigator.geolocation.getCurrentPosition(resolve,reject,{enableHighAccuracy:true,maximumAge:0,timeout:25000}));
   if(!first?.coords||!Number.isFinite(first.coords.latitude)||!Number.isFinite(first.coords.longitude))throw new Error('تم طلب الموقع لكن لم تصل إحداثيات صحيحة.');
-  if(first.coords.accuracy>100)gpsStatus(`تم تحديد موقع مبدئي بدقة ${Math.round(first.coords.accuracy)}م؛ ننتظر إشارة أدق. تحرك إلى مكان مفتوح.`);
-  gps.kind=$('gpsActivityType')?.value||'run';gpsInitMap();gpsResetMap();gps.active=true;gps.paused=false;gps.km=0;gps.last=null;gps.points=[];gps.lastFixAt=0;gps.startAt=Date.now();gps.elapsedBeforePause=0;gpsPosition(first);gps.watchId=navigator.geolocation.watchPosition(gpsPosition,gpsError,{enableHighAccuracy:true,maximumAge:0,timeout:20000});gps.pollTimer=null;gps.timer=setInterval(gpsRender,500);gpsStatus(`✅ تم الوصول للموقع (دقة ${Math.round(first.coords.accuracy||0)}م). بدأ التسجيل؛ ابدأ الحركة وانتظر تحديث المسافة.`);gpsRender();
+  if(first.coords.accuracy>150)gpsStatus(`إشارة GPS مبدئية ضعيفة (${Math.round(first.coords.accuracy)}م)، لكن بدأنا التسجيل وسنستخدم القراءات المقبولة تدريجيًا.`);
+  gps.kind=$('gpsActivityType')?.value||'run';gpsInitMap();gpsResetMap();gps.active=true;gps.paused=false;gps.km=0;gps.last=null;gps.points=[];gps.lastFixAt=0;gps.startAt=Date.now();gps.elapsedBeforePause=0;gpsPosition(first);gps.watchId=navigator.geolocation.watchPosition(gpsPosition,gpsError,{enableHighAccuracy:true,maximumAge:0,timeout:20000});gps.pollTimer=null;gps.timer=setInterval(gpsRender,500);if((Number(first.coords.accuracy)||999)<=150)gpsStatus(`✅ تم الوصول للموقع (دقة ${Math.round(first.coords.accuracy||0)}م). بدأ التسجيل؛ ابدأ الحركة وانتظر تحديث المسافة.`);else gpsStatus(`📡 بدأ التسجيل لكن دقة GPS ضعيفة (${Math.round(first.coords.accuracy||0)}م). اخرج لمكان مفتوح لتحسين المسافة.`);gpsRender();
  }catch(err){gps.active=false;gps.paused=false;if(gps.timer)clearInterval(gps.timer);if(gps.pollTimer)clearInterval(gps.pollTimer);gps.pollTimer=null;gps.timer=null;if(gps.watchId!==null)navigator.geolocation.clearWatch(gps.watchId);gps.watchId=null;const msg=err.code===1?'إذن الموقع مرفوض. من إعدادات Android > التطبيقات > تطبيق FitBros/Web to App > الأذونات > الموقع، اسمح أثناء الاستخدام. لو خيار الموقع غير موجود، أداة Web to App تحتاج تفعيل Location permission وإعادة بناء APK.':err.code===2?'الموقع غير متاح. فعّل Location/GPS ودقة الموقع من إعدادات الهاتف، وجرّب في مكان مفتوح بعيدًا عن المباني.':err.code===3?'انتهت مهلة تحديد الموقع. فعّل GPS، افتح نافذة/مكانًا مفتوحًا وانتظر ثم جرّب مرة أخرى.':(err.message||'تعذر الحصول على موقعك. تأكد من إذن الموقع وGPS.');gpsStatus('❌ لم يبدأ التسجيل: '+msg);gpsRender();}
  finally{if($('gpsStart'))$('gpsStart').disabled=gps.active&&!gps.paused}
 }
 function gpsPosition(pos){
  if(!gps.active||gps.paused)return;
- const c=pos.coords,now=Number(pos.timestamp)||Date.now();
- if(!Number.isFinite(c.latitude)||!Number.isFinite(c.longitude))return;
- const accuracy=Number(c.accuracy)||999,point={lat:c.latitude,lon:c.longitude,at:now,accuracy};
+ const c=pos&&pos.coords,now=Number(pos&&pos.timestamp)||Date.now();
+ if(!c||!Number.isFinite(c.latitude)||!Number.isFinite(c.longitude)){gpsStatus('⚠️ وصل تحديث موقع غير صالح؛ مستمرين في انتظار GPS.');gpsRender();return}
+ const accuracy=Number(c.accuracy)||999,point={lat:Number(c.latitude),lon:Number(c.longitude),at:now,accuracy};
  gps.lastFixAt=Date.now();
- // Discard low-quality fixes: poor first fixes are a common source of huge initial distance jumps.
- if(accuracy>150){gpsStatus(`📡 إشارة GPS ضعيفة (${Math.round(accuracy)}م)، بننتظر تحسينها. التسجيل شغال ويمكنك الإيقاف المؤقت أو الإنهاء.`);gpsRender();return}
- if(!gps.last){gps.last=point;gps.points.push(point);gpsMapPoint(point);gpsStatus(`📍 تم تثبيت نقطة البداية بدقة ${Math.round(accuracy)}م. اتحرك وانتظر تحديث الموقع التالي.`);gpsRender();return}
- const d=gpsHaversine(gps.last,point),dt=(now-gps.last.at)/1000;
- if(dt<=0){gpsRender();return}
+ // Accept lower-quality fixes too; rejecting every fix above 100m can leave the activity timer running with zero distance.
+ if(accuracy>250){gpsStatus(`📡 إشارة GPS ضعيفة جدًا (${Math.round(accuracy)}م). التسجيل والوقت مستمران؛ افتح المكان وحسّن إشارة الموقع.`);gpsRender();return}
+ if(!gps.last){gps.last=point;gps.points.push(point);gpsMapPoint(point);gpsStatus(`📍 تم تثبيت نقطة البداية بدقة ${Math.round(accuracy)}م. جاري انتظار الحركة…`);gpsRender();return}
+ const d=gpsHaversine(gps.last,point),dt=Math.max(0.1,(now-gps.last.at)/1000);
+ if(!Number.isFinite(d)||d<0){gpsRender();return}
  const speedKmh=(d/dt)*3600;
- const maxPlausibleKmh=gps.kind==='walk'?9:20;
- // A single GPS segment cannot add an implausibly large distance, even if its average speed passes the limit.
- const maxSegmentKm=(gps.kind==='walk'?0.035:0.060)*Math.max(1,dt/5);
- const accuracyFloor=Math.max(1.2,Math.min(3.5,((accuracy+(gps.last.accuracy||accuracy))/2)*0.025));
- if(d<accuracyFloor/1000){
-  // Advance the reference fix for tiny/noisy movements so the next update does not use a stale timestamp.
-  gps.last=point;
-  gps.points.push(point);
-  const cutoff=now-60000;gps.points=gps.points.filter(p=>p.at>=cutoff);
-  gpsStatus(`📡 GPS شغال (دقة ${Math.round(accuracy)}م)، بنجمع حركة كفاية لحساب المسافة…`);gpsRender();return
+ const maxPlausibleKmh=gps.kind==='walk'?18:40;
+ // Ignore large GPS jumps, but re-anchor after a very large jump so future fixes are not compared to a stale point.
+ if(speedKmh>maxPlausibleKmh && d>Math.max(0.035,((maxPlausibleKmh/3600)*dt*1.8))){
+   if(d>0.25 || dt>30)gps.last=point;
+   gpsStatus(`📡 تجاهلنا قفزة GPS غير منطقية (${Math.round(d*1000)}م خلال ${Math.round(dt)}ث). مستمرين في انتظار قراءة مستقرة.`);gpsRender();return;
  }
- if(speedKmh>maxPlausibleKmh||d>maxSegmentKm){gps.last=point;gps.points.push(point);const cutoff=now-60000;gps.points=gps.points.filter(p=>p.at>=cutoff);gpsStatus(`📡 تم تجاهل قفزة GPS غير موثوقة (${Math.round(d*1000)}م خلال ${Math.round(dt)}ث). بنعيد تثبيت نقطة القياس.`);gpsRender();return}
- gps.km+=d;gps.last=point;gps.points.push(point);
- // Keep the rolling pace window bounded and remove stale fixes to avoid memory growth.
- const cutoff=now-60000;gps.points=gps.points.filter(p=>p.at>=cutoff);
- gpsMapPoint(point);gpsStatus(`✅ تم تحديث المسافة · دقة ${Math.round(accuracy)}م · ${gps.km.toFixed(3)} كم`);gpsRender();
+ // Use an accuracy-aware small-motion threshold, with a hard cap so normal walking can accumulate distance.
+ const noiseMeters=Math.max(1.2,Math.min(4,accuracy*0.035));
+ if(d*1000<noiseMeters){gps.points.push(point);gps.points=gps.points.filter(p=>p.at>=now-60000);gpsRender();return}
+ gps.km+=d;gps.last=point;gps.points.push(point);gps.points=gps.points.filter(p=>p.at>=now-60000);
+ gpsMapPoint(point);gpsStatus(`✅ المسافة بتتحدث · ${gps.km.toFixed(3)} كم · دقة ${Math.round(accuracy)}م`);gpsRender();
 }
 function gpsHaversine(a,b){const rad=x=>x*Math.PI/180,R=6371,dLat=rad(b.lat-a.lat),dLon=rad(b.lon-a.lon),v=Math.sin(dLat/2)**2+Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(dLon/2)**2;return 2*R*Math.asin(Math.min(1,Math.sqrt(v)))}
 function gpsError(err){const msg=err.code===1?'إذن الموقع مرفوض. افتح إعدادات Android > التطبيقات > FitBros/Web to App > الأذونات > الموقع واسمح أثناء الاستخدام.':err.code===2?'الموقع غير متاح حاليًا؛ فعّل GPS ودقة الموقع وحاول في مكان مفتوح.':'تأخر تحديث الموقع؛ التسجيل ما زال قائمًا، ننتظر إشارة GPS جديدة.';gpsStatus('⚠️ '+msg);gpsRender()}
 function gpsDiscard(){if(!confirm('تمسح التسجيل الحالي بالكامل من غير حفظه؟'))return;if(gps.watchId!==null&&navigator.geolocation)navigator.geolocation.clearWatch(gps.watchId);if(gps.timer)clearInterval(gps.timer);if(gps.pollTimer)clearInterval(gps.pollTimer);gps.pollTimer=null;gps.active=false;gps.paused=false;gps.watchId=null;gps.timer=null;gps.startAt=0;gps.elapsedBeforePause=0;gps.km=0;gps.last=null;gps.points=[];gps.lastFixAt=0;gpsResetMap();try{localStorage.removeItem('fitbros_gps_incomplete_v1')}catch(e){}gpsStatus('تم إلغاء التسجيل ومسح بياناته بدون حفظ.');gpsRender()}
-function gpsPause(){if(!gps.active)return;if(!gps.paused){gps.elapsedBeforePause=gpsElapsedMs();gps.paused=true;if(gps.watchId!==null&&navigator.geolocation)navigator.geolocation.clearWatch(gps.watchId);gps.watchId=null;if(gps.timer)clearInterval(gps.timer);if(gps.pollTimer)clearInterval(gps.pollTimer);gps.pollTimer=null;gps.timer=null;gpsStatus('التسجيل متوقف مؤقتًا. اضغط استكمال للمتابعة.')}else{gps.paused=false;gps.startAt=Date.now();gps.last=null;gps.watchId=navigator.geolocation.watchPosition(gpsPosition,gpsError,{enableHighAccuracy:true,maximumAge:1000,timeout:30000});gps.timer=setInterval(gpsRender,500);gpsStatus('جاري استكمال التسجيل وانتظار تحديث GPS…')}gpsRender()}
-function gpsFinish(){if(!gps.active)return;const elapsed=gpsElapsedMs(),km=+gps.km.toFixed(3),min=+(elapsed/60000).toFixed(2),kind=gps.kind;if(gps.watchId!==null&&navigator.geolocation)navigator.geolocation.clearWatch(gps.watchId);clearInterval(gps.timer);if(gps.pollTimer)clearInterval(gps.pollTimer);gps.pollTimer=null;const points=gps.points.slice();gps.active=false;gps.paused=false;gps.watchId=null;gps.timer=null;if(elapsed<5000){gpsStatus('التسجيل قصير جدًا؛ لم يتم حفظه.');gpsRender();return}const item={type:kind,who:current,title:kind==='run'?'جري GPS':'مشي GPS',source:'gps',km,min:+min.toFixed(2),pace:km>0?+(min/km).toFixed(2):null,steps:kind==='walk'?Math.round(km*1300):undefined,date:today(),durationMs:Math.round(elapsed),trackPoints:points};addLog(item);if(kind==='run')addPoints(current,Math.max(1,Math.round(km*5)));else addPoints(current,Math.max(1,Math.round((item.steps||0)/1000)));try{localStorage.setItem('fitbros_gps_tracks_v1',JSON.stringify([...(JSON.parse(localStorage.getItem('fitbros_gps_tracks_v1')||'[]')),{...item,points,id:Date.now()}].slice(-100)))}catch(e){console.warn('Could not store GPS track locally',e)}gpsStatus(`تم حفظ ${kind==='run'?'الجري':'المشي'}: ${km.toFixed(2)} كم · ${gpsFmtTime(elapsed)} · ${gpsFmtPace(km,elapsed)} دقيقة/كم${km<0.03?' (المسافة غير متاحة بسبب إشارة GPS)':''}`);gpsRender();showFoodToast('✓ تم حفظ نتيجة النشاط في السجل');showSuccessPulse('تم حفظ نشاطك',`${km.toFixed(2)} كم · ${gpsFmtTime(elapsed)}`)}
+function gpsPause(){
+ if(!gps.active)return;
+ if(!gps.paused){
+  gps.elapsedBeforePause=gpsElapsedMs();gps.paused=true;
+  if(gps.watchId!==null&&navigator.geolocation)navigator.geolocation.clearWatch(gps.watchId);gps.watchId=null;
+  if(gps.timer)clearInterval(gps.timer);if(gps.pollTimer)clearInterval(gps.pollTimer);gps.pollTimer=null;gps.timer=null;
+  gpsStatus('⏸ التسجيل متوقف مؤقتًا. اضغط استكمال للمتابعة.');
+ }else{
+  if(!navigator.geolocation){gpsStatus('المتصفح لا يدعم GPS؛ لا يمكن الاستكمال.');return}
+  gps.paused=false;gps.startAt=Date.now();gps.last=null;gps.lastFixAt=0;
+  try{gps.watchId=navigator.geolocation.watchPosition(gpsPosition,gpsError,{enableHighAccuracy:true,maximumAge:0,timeout:30000});gps.timer=setInterval(gpsRender,500);gpsStatus('▶ تم الاستكمال. جاري انتظار أول قراءة GPS…')}
+  catch(e){gps.paused=true;gpsStatus('تعذر استكمال GPS: '+(e.message||'تحقق من إذن الموقع.'))}
+ }
+ gpsRender();
+}
+function gpsFinish(){if(!gps.active)return;const elapsed=gpsElapsedMs(),km=+gps.km.toFixed(3),min=+(elapsed/60000).toFixed(2),kind=gps.kind;if(gps.watchId!==null&&navigator.geolocation)navigator.geolocation.clearWatch(gps.watchId);clearInterval(gps.timer);if(gps.pollTimer)clearInterval(gps.pollTimer);gps.pollTimer=null;const points=gps.points.slice();gps.active=false;gps.paused=false;gps.watchId=null;gps.timer=null;if(elapsed<1000){gpsStatus('التسجيل قصير جدًا؛ لم يتم حفظه.');gpsRender();return}const item={type:kind,who:current,title:kind==='run'?'جري GPS':'مشي GPS',source:'gps',km,min:+min.toFixed(2),pace:km>0?+(min/km).toFixed(2):null,steps:kind==='walk'?Math.round(km*1300):undefined,date:today(),durationMs:Math.round(elapsed),trackPoints:points};addLog(item);persistRemote().catch(e=>{console.error('FitBros GPS activity sync failed:',e);gpsStatus('تم حفظ النشاط على الجهاز، لكن تعذرت مزامنته مع السيرفر. تحقق من الاتصال ثم أعد فتح التطبيق.');});if(kind==='run')addPoints(current,Math.max(1,Math.round(km*5)));else addPoints(current,Math.max(1,Math.round((item.steps||0)/1000)));try{localStorage.setItem('fitbros_gps_tracks_v1',JSON.stringify([...(JSON.parse(localStorage.getItem('fitbros_gps_tracks_v1')||'[]')),{...item,points,id:Date.now()}].slice(-100)))}catch(e){console.warn('Could not store GPS track locally',e)}gpsStatus(`تم حفظ ${kind==='run'?'الجري':'المشي'}: ${km.toFixed(2)} كم · ${gpsFmtTime(elapsed)} · ${gpsFmtPace(km,elapsed)} دقيقة/كم${km<0.03?' (المسافة غير متاحة بسبب إشارة GPS)':''}`);gpsRender();showFoodToast('✓ تم حفظ نتيجة النشاط في السجل');showSuccessPulse('تم حفظ نشاطك',`${km.toFixed(2)} كم · ${gpsFmtTime(elapsed)}`)}
 if($('gpsStart'))$('gpsStart').addEventListener('click',gpsStart);if($('gpsDiscard'))$('gpsDiscard').addEventListener('click',gpsDiscard);if($('gpsPause'))$('gpsPause').addEventListener('click',gpsPause);if($('gpsFinish'))$('gpsFinish').addEventListener('click',gpsFinish);if($('gpsActivityType'))$('gpsActivityType').addEventListener('change',()=>{if(!gps.active){gps.kind=$('gpsActivityType').value;gpsRender()}});window.addEventListener('pagehide',()=>{if(gps.active&&!gps.paused){gps.elapsedBeforePause=gpsElapsedMs();gps.paused=true;if(gps.watchId!==null)navigator.geolocation.clearWatch(gps.watchId);clearInterval(gps.timer);try{localStorage.setItem('fitbros_gps_incomplete_v1',JSON.stringify({kind:gps.kind,km:gps.km,elapsedMs:gps.elapsedBeforePause,points:gps.points,savedAt:Date.now()}))}catch(e){}}});gpsRender();
 $('saveRun').onclick=()=>{let km=+$('runKm').value,min=+$('runMin').value;if(!(km>0)||!(min>0)){alert('اكتب المسافة والمدة بشكل صحيح.');return}addLog({type:'run',who:current,title:'جري',km,min,pace:Math.round((min/km)*100)/100,date:$('runDate').value||today()});addPoints(current,Math.round(km*5));$('runKm').value='';$('runMin').value='';$('runPace').value=''};
 function updateWalkFields(){const mode=$('walkMode')?.value||'time';['time','distance','steps'].forEach(k=>{const el=$('walk'+({time:'Time',distance:'Distance',steps:'Steps'}[k])+'Field');if(el)el.classList.toggle('hidden',mode!==k)})}if($('walkMode')){$('walkMode').addEventListener('change',updateWalkFields);updateWalkFields()}$('saveExercise').onclick=()=>{const mode=$('walkMode').value,date=$('exerciseDate').value||today();let min=0,km=0,steps=0;if(mode==='time'){min=+$('walkMin').value;if(!(min>0)){alert('اكتب مدة المشي.');return}km=min*0.075;steps=Math.round(km*1300)}else if(mode==='distance'){km=+$('walkKm').value;if(!(km>0)){alert('اكتب مسافة صحيحة.');return}min=Math.round(km/4.5*60);steps=Math.round(km*1300)}else{steps=+$('walkSteps').value;if(!(steps>0)){alert('اكتب عدد خطوات صحيح.');return}km=steps/1300;min=Math.round(km/4.5*60)}addLog({type:'walk',who:current,title:'مشي',mode,min,km:+km.toFixed(2),steps,date});addPoints(current,Math.max(1,Math.round(steps/1000)));['walkMin','walkKm','walkSteps'].forEach(id=>{if($(id))$(id).value=''});showFoodToast('✓ تم تسجيل المشي');showSuccessPulse('اتسجل نشاطك','كل خطوة بتفرق 👟');};
