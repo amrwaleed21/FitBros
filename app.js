@@ -55,7 +55,7 @@ function gpsPosition(pos){
  const accuracy=Number(c.accuracy)||999,point={lat:c.latitude,lon:c.longitude,at:now,accuracy};
  gps.lastFixAt=Date.now();
  // Discard low-quality fixes: poor first fixes are a common source of huge initial distance jumps.
- if(accuracy>45){gpsStatus(`📡 دقة GPS ضعيفة (${Math.round(accuracy)}م)، بنستنى إشارة أدق قبل احتساب المسافة.`);gpsRender();return}
+ if(accuracy>100){gpsStatus(`📡 إشارة GPS لسه ضعيفة (${Math.round(accuracy)}م). بنستنى تثبيت الموقع؛ لو فضلت كده فعّل دقة الموقع العالية وافتح مكانًا مفتوحًا.`);gpsRender();return}
  if(!gps.last){gps.last=point;gps.points.push(point);gpsMapPoint(point);gpsStatus(`📍 تم تثبيت نقطة البداية بدقة ${Math.round(accuracy)}م. اتحرك وانتظر تحديث الموقع التالي.`);gpsRender();return}
  const d=gpsHaversine(gps.last,point),dt=(now-gps.last.at)/1000;
  if(dt<=0){gpsRender();return}
@@ -63,8 +63,14 @@ function gpsPosition(pos){
  const maxPlausibleKmh=gps.kind==='walk'?9:20;
  // A single GPS segment cannot add an implausibly large distance, even if its average speed passes the limit.
  const maxSegmentKm=(gps.kind==='walk'?0.035:0.060)*Math.max(1,dt/5);
- const accuracyFloor=Math.max(2,Math.min(7,((accuracy+(gps.last.accuracy||accuracy))/2)*0.06));
- if(d<accuracyFloor/1000){gpsStatus(`📡 GPS شغال (دقة ${Math.round(accuracy)}م)، في انتظار حركة واضحة…`);gpsRender();return}
+ const accuracyFloor=Math.max(1.2,Math.min(3.5,((accuracy+(gps.last.accuracy||accuracy))/2)*0.025));
+ if(d<accuracyFloor/1000){
+  // Advance the reference fix for tiny/noisy movements so the next update does not use a stale timestamp.
+  gps.last=point;
+  gps.points.push(point);
+  const cutoff=now-60000;gps.points=gps.points.filter(p=>p.at>=cutoff);
+  gpsStatus(`📡 GPS شغال (دقة ${Math.round(accuracy)}م)، بنجمع حركة كفاية لحساب المسافة…`);gpsRender();return
+ }
  if(speedKmh>maxPlausibleKmh||d>maxSegmentKm){gpsStatus(`📡 تم تجاهل قفزة GPS غير موثوقة (${Math.round(d*1000)}م خلال ${Math.round(dt)}ث). بنستنى نقطة أدق.`);gpsRender();return}
  gps.km+=d;gps.last=point;gps.points.push(point);
  // Keep the rolling pace window bounded and remove stale fixes to avoid memory growth.
