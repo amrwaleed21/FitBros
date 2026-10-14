@@ -319,4 +319,4 @@ body{background:radial-gradient(ellipse at 8% 0%,rgba(255,106,0,.105),transparen
 .history-food-row span small{font-size:12px}
 .challenge-submetric{margin-top:10px}.challenge-submetric small{display:block;margin:6px 0;color:var(--muted,#aaa)}.challenge-submetric .progress{height:8px;margin-top:4px}
 /* Food catalog hide controls */
-.food-row{display:flex;align-items:stretch;gap:5px;min-width:0}.food-row .food-item{flex:1;min-width:0;width:100%;}.food-hide-btn{flex:0 0 30px;align-self:stretch;padding:0!important;margin:0!important;border:1px solid #54302a!important;background:#281714!important;color:#ff9b8c!important;border-radius:10px!important;font-size:21px!important;line-height:1!important}
+.food-row{display:flex;align-items:stretch;gap:5px;min-width:0}.food-row .food-item{flex:1;min-width:0;width:100%;}
