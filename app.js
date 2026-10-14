@@ -164,7 +164,7 @@ function dayKey(){return today()}function weekKey(){let d=new Date();let jan=new
 {title:'سجّل مشوار مشي واحد',type:'walks',target:1,unit:'مشوار'},
 {title:'اجري 1 كم',type:'run',target:1,unit:'كم'},
 {title:'اجري 2 كم',type:'run',target:2,unit:'كم'},
-{title:'امشِ 20 دقيقة',type:'walkMinutes',target:20,unit:'دقيقة'},
+{title:'امشِ 20 دقيقة + 1 كم + 1500 خطوة',type:'walkAll',target:1,unit:'تحدي'},
 {title:'امشِ أو اجري لمدة 10 دقائق',type:'moveMinutes',target:10,unit:'دقيقة'},
 {title:'امشِ أو اجري لمدة 20 دقيقة',type:'moveMinutes',target:20,unit:'دقيقة'},
 {title:'سجّل مشوار حركة واحد',type:'moveSessions',target:1,unit:'مشوار'},
@@ -173,44 +173,58 @@ function dayKey(){return today()}function weekKey(){let d=new Date();let jan=new
 {title:'سجّل تمرين مقاومة منزلي',type:'workoutSessions',target:1,unit:'تمرين'},
 {title:'اجمع 30 دقيقة نشاط: مشي أو جري أو تمرين منزلي',type:'allMoveMinutes',target:30,unit:'دقيقة'}
 ];
-const weeklyPool=[
-{title:'اجمعوا 5 كم جري أو مشي مع بعض',type:'runwalk',target:5,unit:'كم'},
-{title:'اجمعوا 10 كم جري أو مشي مع بعض',type:'runwalk',target:10,unit:'كم'},
-{title:'سجّلوا 3 مشاوير جري أو مشي مع بعض',type:'moveSessions',target:3,unit:'مشاوير'},
-{title:'اجمعوا 60 دقيقة جري أو مشي مع بعض',type:'moveMinutes',target:60,unit:'دقيقة'},
-{title:'اجمعوا 5 كم مشي مع بعض',type:'walkKm',target:5,unit:'كم'},
-{title:'اجمعوا 3 كم جري مع بعض',type:'run',target:3,unit:'كم'},
-{title:'اعملوا 3 تمارين منزلية مع بعض',type:'workoutSessions',target:3,unit:'تمارين'},
-{title:'اجمعوا 60 دقيقة تمارين منزلية مع بعض',type:'exercise',target:60,unit:'دقيقة'},
-{title:'اجمعوا 120 دقيقة نشاط رياضي مع بعض',type:'allMoveMinutes',target:120,unit:'دقيقة'},
-{title:'سجّلوا 5 أنشطة رياضية متنوعة مع بعض',type:'allSessions',target:5,unit:'أنشطة'}
+const threeDayPool=[
+{title:'تحدي الـ 3 أيام: 6 كم مشي أو جري مع بعض',type:'runwalk',target:6,unit:'كم'},
+{title:'تحدي الـ 3 أيام: 4 كم جري + 4 كم مشي',type:'runWalkSplit',target:1,unit:'تحدي',parts:[['الجري','runKm',4,'كم'],['المشي','walkKm',4,'كم']]},
+{title:'تحدي الـ 3 أيام: 100 عدة ضغط + 120 عدة سكوات',type:'repCombo',target:1,unit:'تحدي',parts:[['الضغط','pushups',100,'عدة'],['السكوات','squats',120,'عدة']]},
+{title:'تحدي الـ 3 أيام: 80 عدة لانجز + 100 عدة رفع سمانة',type:'repCombo',target:1,unit:'تحدي',parts:[['اللانجز','lunges',80,'عدة'],['رفع السمانة','calfRaises',100,'عدة']]},
+{title:'تحدي الـ 3 أيام: 120 عدة بطن + بلانك 180 ثانية',type:'repCombo',target:1,unit:'تحدي',parts:[['البطن','absReps',120,'عدة'],['البلانك','plankSeconds',180,'ثانية']]},
+{title:'تحدي الـ 3 أيام: 100 عدة ضغط + 100 عدة لانجز',type:'repCombo',target:1,unit:'تحدي',parts:[['الضغط','pushups',100,'عدة'],['اللانجز','lunges',100,'عدة']]},
+{title:'تحدي الـ 3 أيام: 150 سكوات + 150 عدة بطن',type:'repCombo',target:1,unit:'تحدي',parts:[['السكوات','squats',150,'عدة'],['البطن','absReps',150,'عدة']]},
+{title:'تحدي الـ 3 أيام: 90 دقيقة نشاط + 5 كم مشي',type:'comboMinutesWalk',target:1,unit:'تحدي',parts:[['وقت النشاط','minutes',90,'دقيقة'],['المشي','walkKm',5,'كم']]},
+{title:'تحدي الـ 3 أيام: 8 كم مشي أو جري + 3 مشاوير',type:'comboSessions',target:1,unit:'تحدي',parts:[['المسافة','runwalk',8,'كم'],['المشاوير','moveSessions',3,'مشوار']]},
+{title:'تحدي الـ 3 أيام: 60 عدة ضغط + 60 سكوات + 60 لانجز',type:'repCombo',target:1,unit:'تحدي',parts:[['الضغط','pushups',60,'عدة'],['السكوات','squats',60,'عدة'],['اللانجز','lunges',60,'عدة']]},
+{title:'تحدي الـ 3 أيام: 3 كم جري + 6 كم مشي',type:'runWalkSplit',target:1,unit:'تحدي',parts:[['الجري','runKm',3,'كم'],['المشي','walkKm',6,'كم']]},
+{title:'تحدي الـ 3 أيام: 200 عدة متنوعة من تمارين البيت',type:'totalReps',target:200,unit:'عدة'}
 ];
+function challengePeriod(){const d=new Date();const day=Math.floor(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())/86400000);const startDay=Math.floor(day/3)*3;const start=new Date(startDay*86400000).toISOString().slice(0,10);const end=new Date((startDay+2)*86400000).toISOString().slice(0,10);return {index:Math.floor(startDay/3),start,end}}
 function challengeProgress(c,period){
- let logs=db.logs.filter(x=>period==='day'?x.date===today():x.date&&x.date.slice(0,4)===new Date().getFullYear().toString()&&weekOf(x.date)===weekKey());
- const moving=logs.filter(x=>['run','walk'].includes(x.type)); const exercises=logs.filter(x=>['exercise','workout'].includes(x.type));
- const kmOf=x=>Math.max(0,Number(x.km)||0);
- const minOf=x=>Math.max(0,Number(x.min)||0);
+ const range=period==='day'?{start:today(),end:today()}:challengePeriod();
+ const logs=db.logs.filter(x=>x.date&&x.date>=range.start&&x.date<=range.end);
+ const moving=logs.filter(x=>['run','walk'].includes(x.type));const exercises=logs.filter(x=>['exercise','workout'].includes(x.type));
+ const kmOf=x=>Math.max(0,Number(x.km)||0),minOf=x=>Math.max(0,Number(x.min)||0);
+ const ws=exercises.filter(x=>x.type==='workout');
+ const repsFor=re=>ws.filter(x=>re.test(`${x.exerciseKey||''} ${x.title||''} ${x.exercise||''}`)).reduce((sum,x)=>sum+Math.max(0,Number(x.sets)||0)*Math.max(0,Number(x.reps)||0),0);
+ const totalReps=ws.reduce((sum,x)=>sum+(Number(x.sets)||0)*(Number(x.reps)||0),0);
+ const plankSeconds=ws.filter(x=>/plank|بلانك/i.test(`${x.exerciseKey||''} ${x.title||''} ${x.exercise||''}`)).reduce((sum,x)=>sum+(Number(x.seconds)||0)*(Number(x.sets)||1),0);
  switch(c.type){
- case'water':return logs.filter(x=>x.type==='water').reduce((s,x)=>s+(Number(x.ml)||0),0);
- case'protein':return logs.filter(x=>x.type==='food'&&(Number(x.protein)||0)>=15).length;
- case'minutes':case'moveMinutes':return moving.reduce((s,x)=>s+minOf(x),0);
- case'walkMinutes':return logs.filter(x=>x.type==='walk').reduce((s,x)=>s+minOf(x),0);
+ case'walkAll':{const w=logs.filter(x=>x.type==='walk');return {minutes:w.reduce((s,x)=>s+minOf(x),0),km:w.reduce((s,x)=>s+kmOf(x),0),steps:w.reduce((s,x)=>s+(Number(x.steps)||Math.round(kmOf(x)*1300)),0)}}
+ case'repCombo':{const out={};for(const part of c.parts){if(part[1]==='pushups')out.pushups=repsFor(/pushup|ضغط/i);else if(part[1]==='squats')out.squats=repsFor(/squat|سكوات/i);else if(part[1]==='lunges')out.lunges=repsFor(/lunge|لانجز|اندفاع/i);else if(part[1]==='calfRaises')out.calfRaises=repsFor(/calf.?raise|سمانة|رفع السمانة/i);else if(part[1]==='absReps')out.absReps=repsFor(/abs|crunch|sit.?up|بطن|كرنش/i);else if(part[1]==='plankSeconds')out.plankSeconds=plankSeconds;}return out}
+ case'runWalkSplit':return {runKm:logs.filter(x=>x.type==='run').reduce((s,x)=>s+kmOf(x),0),walkKm:logs.filter(x=>x.type==='walk').reduce((s,x)=>s+kmOf(x),0)};
+ case'comboMinutesWalk':return {minutes:[...moving,...exercises].reduce((s,x)=>s+minOf(x),0),walkKm:logs.filter(x=>x.type==='walk').reduce((s,x)=>s+kmOf(x),0)};
+ case'comboSessions':return {runwalk:moving.reduce((s,x)=>s+kmOf(x),0),moveSessions:moving.length};
+ case'totalReps':return totalReps;
+ case'moveMinutes':return moving.reduce((s,x)=>s+minOf(x),0);
  case'allMoveMinutes':return [...moving,...exercises].reduce((s,x)=>s+minOf(x),0);
- case'workoutSessions':return exercises.filter(x=>x.type==='workout'||x.type==='exercise').length;
+ case'workoutSessions':return ws.length;
  case'allSessions':return [...moving,...exercises].length;
  case'runwalk':return moving.reduce((s,x)=>s+kmOf(x),0);
  case'walkKm':return logs.filter(x=>x.type==='walk').reduce((s,x)=>s+kmOf(x),0);
+ case'runKm':return logs.filter(x=>x.type==='run').reduce((s,x)=>s+kmOf(x),0);
  case'run':return logs.filter(x=>x.type==='run').reduce((s,x)=>s+kmOf(x),0);
- case'meals':return logs.filter(x=>x.type==='food').length;
- case'exercise':return exercises.reduce((s,x)=>s+minOf(x),0);
  case'walks':return logs.filter(x=>x.type==='walk').length;
  case'moveSessions':return moving.length;
- case'steps':return logs.filter(x=>['run','walk'].includes(x.type)).reduce((s,x)=>s+(Number(x.steps)|| (x.type==='walk'?Math.round(kmOf(x)*1300):0)),0);
- case'fruit':return logs.filter(x=>x.type==='food'&&/فاكه|تفاح|موز|برتقال|مانجو|عنب|فراول|تمر|كمثرى|خوخ|بطيخ/.test(x.title||'')).length;
+ case'steps':return moving.reduce((s,x)=>s+(Number(x.steps)||(x.type==='walk'?Math.round(kmOf(x)*1300):0)),0);
  default:return 0
  }
 }
-function weekOf(date){let d=new Date(date+'T12:00:00'),jan=new Date(d.getFullYear(),0,1);return `${d.getFullYear()}-W${Math.ceil((((d-jan)/86400000)+jan.getDay()+1)/7)}`}function challengeHTML(c,period){let n=challengeProgress(c,period),done=n>=c.target;return `<div class="challenge"><strong>${done?'✅':'🎯'} ${c.title}</strong><div class="progress"><span style="width:${Math.min(100,n/c.target*100)}"></span></div><small>${num(n,1)} / ${c.target} ${c.unit}</small></div>`}function renderChallenges(){let daily=dailyPool[seededIndex(dayKey(),dailyPool.length)],weekly=weeklyPool[seededIndex(weekKey(),weeklyPool.length)];$('homeDailyChallenge').innerHTML=challengeHTML(daily,'day')+`<small class="muted">يتجدد يوم ${prettyDate(today())}</small>`;$('dailyChallenges').innerHTML=challengeHTML(daily,'day');$('weeklyChallenges').innerHTML=challengeHTML(weekly,'week')+`<small class="muted">أسبوع ${weekKey()}</small>`}
+function weekOf(date){let d=new Date(date+'T12:00:00'),jan=new Date(d.getFullYear(),0,1);return `${d.getFullYear()}-W${Math.ceil((((d-jan)/86400000)+jan.getDay()+1)/7)}`}
+function challengeHTML(c,period){let n=challengeProgress(c,period);if(c.type==='walkAll'){const items=[['الوقت',n.minutes,20,'دقيقة'],['المسافة',n.km,1,'كم'],['الخطوات',n.steps,1500,'خطوة']];const done=items.every(a=>a[1]>=a[2]);return `<div class="challenge"><strong>${done?'✅':'🎯'} ${c.title}</strong>${items.map(a=>`<div class="challenge-submetric"><small>${a[0]}: ${num(a[1],a[3]==='كم'?2:0)} / ${a[2]} ${a[3]}</small><div class="progress"><span style="width:${Math.min(100,a[1]/a[2]*100)}%"></span></div></div>`).join('')}</div>`}
+ if(c.parts){const items=c.parts.map(a=>[a[0],Number(n[a[1]])||0,a[2],a[3]]);const done=items.every(a=>a[1]>=a[2]);return `<div class="challenge"><strong>${done?'✅':'🎯'} ${c.title}</strong>${items.map(a=>`<div class="challenge-submetric"><small>${a[0]}: ${num(a[1],a[3]==='كم'?2:0)} / ${a[2]} ${a[3]}</small><div class="progress"><span style="width:${Math.min(100,a[1]/a[2]*100)}%"></span></div></div>`).join('')}</div>`}
+ if(c.type==='comboSessions'){const items=[['المسافة',n.runwalk,8,'كم'],['المشاوير',n.moveSessions,3,'مشوار']];return `<div class="challenge"><strong>🎯 ${c.title}</strong>${items.map(a=>`<div class="challenge-submetric"><small>${a[0]}: ${num(a[1],a[3]==='كم'?2:0)} / ${a[2]} ${a[3]}</small><div class="progress"><span style="width:${Math.min(100,a[1]/a[2]*100)}%"></span></div></div>`).join('')}</div>`}
+ if(c.type==='totalReps'){const done=n>=c.target;return `<div class="challenge"><strong>${done?'✅':'🎯'} ${c.title}</strong><div class="progress"><span style="width:${Math.min(100,n/c.target*100)}%"></span></div><small>${num(n)} / ${c.target} ${c.unit}</small></div>`}
+ let done=n>=c.target;return `<div class="challenge"><strong>${done?'✅':'🎯'} ${c.title}</strong><div class="progress"><span style="width:${Math.min(100,n/c.target*100)}%"></span></div><small>${num(n,1)} / ${c.target} ${c.unit}</small></div>`}
+function renderChallenges(){const daily=dailyPool[seededIndex(dayKey(),dailyPool.length)],period=challengePeriod(),threeDay=threeDayPool[seededIndex(String(period.index),threeDayPool.length)];$('homeDailyChallenge').innerHTML=challengeHTML(daily,'day')+`<small class="muted">يتجدد يوم ${prettyDate(today())}</small>`;$('dailyChallenges').innerHTML=challengeHTML(daily,'day');$('weeklyChallenges').innerHTML=challengeHTML(threeDay,'cycle')+`<small class="muted">تحدي الـ 3 أيام · من ${prettyDate(period.start)} إلى ${prettyDate(period.end)} · يتغير كل 3 أيام</small>`}
 $('planForm').addEventListener('submit',e=>{e.preventDefault();let plan={id:Date.now()+Math.random(),who:current,day:+$('planDay').value,type:$('planType').value,details:$('planDetails').value.trim(),target:+$('planTarget').value||0};if(!plan.details)return;db.plans.push(plan);save();$('planDetails').value='';$('planTarget').value='';renderPlan()});function renderPlan(){let days=['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];$('weeklyPlan').innerHTML=days.map((d,i)=>{let plans=db.plans.filter(p=>p.day===i&&p.who===current);return `<div class="panel day-panel"><h3>${d}</h3>${plans.length?plans.map(p=>{let done=db.planDone.some(x=>x.planId===p.id&&x.date===today());return `<div class="plan-row"><div><strong>${p.details}</strong><small>${p.type} · ${NAMES[p.who]||'مشترك'}</small></div><button class="${done?'donebtn':'secondary compact'}" data-complete-plan="${p.id}" ${done?'disabled':''}>${done?'تم ✓':'خلصت'}</button><button class="deletebtn" data-delete-plan="${p.id}" aria-label="حذف">×</button></div>`}).join(''):'<p class="muted">مفيش نشاط مضاف لليوم ده.</p>'}</div>`}).join('');$('weeklyPlan').querySelectorAll('[data-complete-plan]').forEach(b=>b.onclick=()=>completePlan(b.dataset.completePlan));$('weeklyPlan').querySelectorAll('[data-delete-plan]').forEach(b=>b.onclick=()=>{db.plans=db.plans.filter(p=>String(p.id)!==b.dataset.deletePlan);save();renderPlan()});renderList('planHistory',db.planDone.filter(x=>x.who===current),x=>`<b>✓ تم</b><br><small>${x.details}</small>`,'لسه مفيش أنشطة مكتملة من الجدول.')}function completePlan(id){let p=db.plans.find(x=>String(x.id)===String(id));if(!p||db.planDone.some(x=>x.planId===p.id&&x.date===today()))return;let who=current;let log={type:p.type==='جري'?'run':'exercise',who,title:p.type==='جري'?'جري (من الجدول)':p.type,min:p.type==='جري'?0:(p.target||30),km:p.type==='جري'?(p.target||0):0,date:today(),fromPlan:true};if(log.type==='run'&&log.km<=0){let m=p.details.match(/([0-9.]+)\s*كم/);log.km=m?+m[1]:0}db.logs.push({...log,id:Date.now()+Math.random()});addPoints(who,10);db.planDone.push({planId:p.id,date:today(),who:p.who,title:p.type,details:p.details});save();renderAll()}
 function renderNeeds(){let p=getProfile(current);if(!p){$('calGoal').textContent='—';$('calEaten').textContent='أكمل بياناتك أولًا';$('waterGoal').textContent='—';$('waterToday').textContent='أكمل بياناتك أولًا';$('sleepValue').textContent='—';$('sleepQuality').textContent='سجّل نومك';if($('needsSummary'))$('needsSummary').innerHTML='<p class="muted">أدخل الوزن والطول والسن من بياناتك لحساب احتياجك اليومي.</p>';['calGauge','waterGauge','sleepGauge'].forEach(id=>$(id).style.setProperty('--progress','0%'));return;}let todayLogs=ownLogs(current).filter(x=>x.date===today());let foodToday=todayLogs.filter(x=>x.type==='food');let eaten=foodToday.reduce((s,x)=>s+(+x.kcal||0),0),water=todayLogs.filter(x=>x.type==='water').reduce((s,x)=>s+(Number(x.ml)||0),0),exerciseBurn=todayLogs.reduce((s,x)=>s+(x.type==='run'||x.type==='walk'?((+x.km||0)*p.weight):x.type==='exercise'?((+x.min||0)*(x.intensity==='عالٍ'?9:x.intensity==='خفيف'?3:5)*p.weight/60):0),0);let calorieGoal=Math.round(p.calories+exerciseBurn),waterGoal=p.water+Math.round(todayLogs.reduce((s,x)=>s+(x.type==='run'?(+x.min||0)*8:(x.type==='exercise'||x.type==='walk')?(+x.min||0)*5:0),0)/50)*50;let sleep=ownLogs(current,'sleep').filter(x=>x.date===today()).sort((a,b)=>b.id-a.id)[0],hours=sleep?+sleep.hours:0,quality=!sleep?'سجّل نومك':hours<5?'قليل جدًا':hours<7?'قليل':hours<=9?'جيد':hours<=10?'أكثر من المعتاد':'طويل جدًا';$('calGoal').textContent=num(calorieGoal);$('calEaten').textContent=`${num(eaten)} مأكول`; $('calGauge').style.setProperty('--progress',Math.min(100,eaten/Math.max(1,calorieGoal)*100)+'%');const macroTotals=foodToday.reduce((a,x)=>({protein:a.protein+(+x.protein||0),carbs:a.carbs+(+x.carbs||0),fat:a.fat+(+x.fat||0),fiber:a.fiber+(+x.fiber||0)}),{protein:0,carbs:0,fat:0,fiber:0});const macroTarget={protein:Math.round(p.weight*1.6),fat:Math.round(p.weight*0.8),carbs:Math.max(0,Math.round((calorieGoal-macroTargetSafe(p.weight)-Math.round(p.weight*0.8)*9)/4))};function macroTargetSafe(weight){return Math.round(weight*1.6)*4}if($('dailyMacros'))$('dailyMacros').innerHTML=[['البروتين',macroTotals.protein,macroTarget.protein,'جم','#77c8ff'],['الكربوهيدرات',macroTotals.carbs,macroTarget.carbs,'جم','#d7adff'],['الدهون',macroTotals.fat,macroTarget.fat,'جم','#ffd166'],['الألياف',macroTotals.fiber,25,'جم','#72d6a1']].map(a=>`<div class="fact" style="--fact:${a[4]}"><small>${a[0]} · الهدف ${a[2]} ${a[3]}</small><strong>${num(a[1],1)} <small>${a[3]}</small></strong><div class="macro-track"><span style="width:${Math.min(100,a[2]?a[1]/a[2]*100:0)}%"></span></div></div>`).join('');$('waterGoal').textContent=num(waterGoal);$('waterToday').textContent=`${num(water)} مل شربت`;$('waterGauge').style.setProperty('--progress',Math.min(100,water/Math.max(1,waterGoal)*100)+'%');$('sleepValue').textContent=sleep?num(hours,1):'—';$('sleepQuality').textContent=quality;$('sleepGauge').style.setProperty('--progress',Math.min(100,hours/8*100)+'%');$('waterLabel').textContent=`${num(water)} من ${num(waterGoal)} مل`;if($('homeWaterSummary'))$('homeWaterSummary').textContent=`${num(water)} من ${num(waterGoal)} مل اليوم` ;if($('waterPageProgress'))$('waterPageProgress').style.width=Math.min(100,water/Math.max(1,waterGoal)*100)+'%';$('homeCalories').textContent=`أكلت ${num(eaten)} من ${num(calorieGoal)} سعرة تقديرية اليوم.`;if($('needsSummary'))$('needsSummary').innerHTML=`<div class="needline"><span>السعرات الأساسية</span><b>${num(p.calories)} سعرة</b></div><div class="needline"><span>نشاط اليوم المقدر</span><b>+${num(Math.round(exerciseBurn))} سعرة</b></div><div class="needline"><span>هدف المياه اليوم</span><b>${num(waterGoal)} مل</b></div><div class="needline"><span>جودة النوم</span><b>${quality}</b></div><div class="needline"><span>وزنك / طولك</span><b>${p.weight} كجم / ${p.height} سم</b></div><div class="needline"><span>الهدف</span><b>${({cut:'تنشيف',bulk:'تضخيم',maintain:'الحفاظ على الوزن',fitness:'لياقة عامة'})[p.goal]}</b></div><p class="muted tiny">السعرات الإضافية تقديرية وتتغير حسب مدة النشاط وشدته. لو عمرك أقل من 18 سنة، استخدم الأرقام كمرشد عام وتجنب تغييرات كبيرة في الأكل بدون مختص.</p>`}
 
