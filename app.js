@@ -19,17 +19,27 @@ function initDB(){db.logs ||= [];db.points ||= {Amr:0,Ziad:0};db.profiles ||= {}
 $('toggleCustomFood').addEventListener('click',()=> $('customFoodForm').classList.toggle('hidden'));$('saveCustomFood').addEventListener('click',()=>{const name=$('customFoodName').value.trim(),serving=Math.max(1,+$('customFoodServing').value||100);if(!name){alert('اكتب اسم الطعام الأول.');return}const f={id:Date.now(),name,cat:$('customFoodCat').value,serving:`${serving} جم/مل`,kcal:+$('customFoodKcal').value||0,protein:+$('customFoodProtein').value||0,carbs:+$('customFoodCarbs').value||0,fat:+$('customFoodFat').value||0,fiber:+$('customFoodFiber').value||0,custom:true};foods.unshift(f);selected=f;$('foodSearch').value=name;$('grams').value=String(serving);$('foodCount').value=1;foodPickerOpen=false;renderFood();renderFacts();$('customFoodForm').classList.add('hidden');['customFoodName'].forEach(id=>$(id).value='');saveCustomFoods()});function saveCustomFoods(){try{localStorage.setItem('fitbros_custom_foods_v1',JSON.stringify(foods.filter(f=>f.custom)))}catch(e){console.warn(e)}}function loadCustomFoods(){try{const saved=JSON.parse(localStorage.getItem('fitbros_custom_foods_v1')||'[]');saved.forEach(f=>{if(!foods.some(x=>x.id===f.id))foods.push(f)})}catch(e){}}
 $('loginForm').addEventListener('submit',async e=>{e.preventDefault();$('loginError').textContent='جاري تسجيل الدخول...';const email=$('email').value.trim();const password=$('pass').value;try{const {data,error}=await sb.auth.signInWithPassword({email,password});if(error)throw error;authUser=data.user;await loadRemote();localStorage.setItem('fitbros_session',current);$('login').classList.add('hidden');if(!db.profiles[current])showSetup();else enterApp()}catch(err){authUser=null;if(!navigator.onLine&&tryOpenCachedOffline())return;$('loginError').textContent=err.message==='Invalid login credentials'?'الإيميل أو كلمة المرور غير صحيحة.':(err.message||'فشل تسجيل الدخول. راجع إعدادات Supabase.')} });
 sb.auth.getSession().then(async({data,error})=>{
-  if(error||!data.session){tryOpenCachedOffline();return}
+  if(error||!data.session){if(!tryOpenCachedOffline())console.warn('No cached FitBros account available for offline mode.');return}
   authUser=data.session.user;
   try{await loadRemote();localStorage.setItem('fitbros_session',current);$('login').classList.add('hidden');if(!db.profiles[current])showSetup();else enterApp()}
   catch(err){console.warn('FitBros remote load failed; trying local data:',err.message||err);if(!tryOpenCachedOffline()){$('login').classList.remove('hidden');$('loginError').textContent=navigator.onLine?(err.message||'تعذر تحميل البيانات.'):'لا يوجد إنترنت ولا توجد بيانات دخول محفوظة على هذا الجهاز.'}}
 });
 function tryOpenCachedOffline(){
-  const saved=localStorage.getItem('fitbros_session');
-  if(!saved||!PEOPLE.includes(saved)||!db.profiles||!db.profiles[saved])return false;
-  current=saved;offlineMode=true;
+  // Offline fallback must not require a fresh Supabase request or a profile object.
+  // The last successfully loaded account name is stored locally after online login.
+  let saved='';
+  try{saved=localStorage.getItem('fitbros_session')||'';}catch(e){console.warn('FitBros local session unavailable:',e)}
+  if(!saved||!PEOPLE.includes(saved))return false;
+  current=saved;
+  db=db&&typeof db==='object'?db:{};
+  db.logs=Array.isArray(db.logs)?db.logs:[];
+  db.points=db.points||{Amr:0,Ziad:0};
+  db.profiles=db.profiles||{};
+  db.plans=Array.isArray(db.plans)?db.plans:[];
+  db.planDone=Array.isArray(db.planDone)?db.planDone:[];
+  offlineMode=true;
   $('login').classList.add('hidden');$('setup').classList.add('hidden');
-  if(!$('offlineStatus')){const note=document.createElement('div');note.id='offlineStatus';note.style.cssText='position:sticky;top:0;z-index:9999;padding:8px 12px;text-align:center;background:#7a3a00;color:#fff;font:14px Cairo,sans-serif';note.textContent='وضع أوف لاين — بياناتك محفوظة على الجهاز وستتم مزامنتها عند رجوع الإنترنت';document.body.prepend(note)}
+  if(!$('offlineStatus')){const note=document.createElement('div');note.id='offlineStatus';note.style.cssText='position:sticky;top:0;z-index:9999;padding:8px 12px;text-align:center;background:#7a3a00;color:#fff;font:14px Cairo,sans-serif';note.textContent='وضع أوف لاين — التسجيلات الجديدة محفوظة على الجهاز وستتم مزامنتها عند رجوع الإنترنت';document.body.prepend(note)}
   enterApp();return true;
 } function showSetup(){ $('setup').classList.remove('hidden');$('profileName').textContent=NAMES[current];let p=db.profiles[current]||{};if(p.weight)$('weight').value=p.weight;if(p.height)$('height').value=p.height;if(p.age)$('age').value=p.age;if(p.goal)$('goal').value=p.goal;if(p.activity)$('activityLevel').value=p.activity;['waist','chest','arm'].forEach(k=>{if(p[k]&&$(k))$(k).value=p[k]})}
 
