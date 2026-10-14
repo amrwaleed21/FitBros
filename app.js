@@ -29,8 +29,8 @@ function gpsFmtPace(km,ms){if(km<=0||ms<=0)return '—';let pace=(ms/60000)/km;i
 function gpsLiveMetrics(){const now=Date.now(),pts=gps.points.filter(p=>p.at>=now-12000);if(pts.length<2)return {pace:'—',speed:0};let dist=0;for(let i=1;i<pts.length;i++)dist+=gpsHaversine(pts[i-1],pts[i]);const elapsed=(pts[pts.length-1].at-pts[0].at)/1000;if(elapsed<5||dist<0.008)return {pace:'—',speed:0};const speed=dist/(elapsed/3600);return {pace:gpsFmtPace(dist,elapsed*1000),speed:Number.isFinite(speed)?speed:0}}
 function gpsRender(){const elapsed=gpsElapsedMs(),live=gpsLiveMetrics();if($('gpsDistance'))$('gpsDistance').textContent=gps.km.toFixed(2)+' كم';if($('gpsElapsed'))$('gpsElapsed').textContent=gpsFmtTime(elapsed);if($('gpsSpeed'))$('gpsSpeed').textContent=live.speed.toFixed(1)+' كم/س';if($('gpsPace'))$('gpsPace').textContent=live.pace+' دقيقة/كم';if($('gpsPaceLabel'))$('gpsPaceLabel').textContent=gps.kind==='run'?'Pace':'الوتيرة';if($('gpsStart'))$('gpsStart').disabled=gps.active&&!gps.paused;if($('gpsActivityType'))$('gpsActivityType').disabled=gps.active;if($('gpsPause')){$('gpsPause').disabled=!gps.active;$('gpsPause').textContent=gps.paused?'▶ استكمال':'⏸ إيقاف مؤقت'}if($('gpsFinish'))$('gpsFinish').disabled=!gps.active}
 function gpsStatus(t){if($('gpsStatus'))$('gpsStatus').textContent=t}
-function gpsInitMap(){if(gps.map||!window.L||!$('gpsMap'))return;gps.map=L.map('gpsMap',{zoomControl:true}).setView([30.0444,31.2357],5);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(gps.map);gps.polyline=L.polyline([],{color:'#ff6a00',weight:5}).addTo(gps.map);setTimeout(()=>gps.map&&gps.map.invalidateSize(),250)}
-function gpsMoveMarker(p){gpsInitMap();if(!gps.map||!p)return;const ll=[p.lat,p.lon];if(gps.markers.length===0)gps.markers.push(L.circleMarker(ll,{radius:6,color:'#fff',fillColor:'#19c37d',fillOpacity:1}).addTo(gps.map));else gps.markers[0].setLatLng(ll);gps.map.panTo(ll,{animate:false});if($('gpsMapHint'))$('gpsMapHint').textContent=`تم استقبال الموقع · دقة ${Math.round(p.accuracy||0)}م · نقاط المسار ${gps.points.length}.`}
+function gpsInitMap(){if(gps.map||!window.L||!$('gpsMap'))return;gps.map=L.map('gpsMap',{zoomControl:true,minZoom:4,maxZoom:19,maxBounds:[[21.0,24.0],[32.5,37.5]],maxBoundsViscosity:.75}).setView([26.8,30.8],5);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(gps.map);gps.polyline=L.polyline([],{color:'#ff6a00',weight:5,opacity:.9,lineCap:'round',lineJoin:'round'}).addTo(gps.map);setTimeout(()=>gps.map&&gps.map.invalidateSize(),250)}
+function gpsMoveMarker(p){gpsInitMap();if(!gps.map||!p)return;const ll=[p.lat,p.lon];if(gps.markers.length===0)gps.markers.push(L.circleMarker(ll,{radius:7,color:'#fff',weight:2,fillColor:'#19c37d',fillOpacity:1}).addTo(gps.map));else gps.markers[0].setLatLng(ll);if(gps.map.getZoom()<11)gps.map.setView(ll,13,{animate:false});else gps.map.panTo(ll,{animate:false});if($('gpsMapHint'))$('gpsMapHint').textContent=`تم استقبال الموقع · دقة ${Math.round(p.accuracy||0)}م · نقاط المسار ${gps.points.length}.`}
 function gpsMapPoint(p){gpsInitMap();if(!gps.map||!p)return;gps.polyline.addLatLng([p.lat,p.lon]);gpsMoveMarker(p);if($('gpsMapHint'))$('gpsMapHint').textContent=`تم تسجيل ${gps.points.length} نقطة في المسار.`}
 function gpsStartPolling(){if(gps.pollTimer)clearInterval(gps.pollTimer);gps.pollTimer=setInterval(()=>{if(!gps.active||gps.paused||!navigator.geolocation)return;navigator.geolocation.getCurrentPosition(gpsPosition,gpsError,{enableHighAccuracy:true,maximumAge:0,timeout:12000})},3000)}
 function gpsResetMap(){if(!gps.map)return;gps.polyline.setLatLngs([]);gps.markers.forEach(m=>gps.map.removeLayer(m));gps.markers=[];if($('gpsMapHint'))$('gpsMapHint').textContent='الخريطة هتظهر بعد تحديد موقعك، والمسار هيتسجل مع النشاط عند الحفظ.'}
@@ -56,21 +56,25 @@ function gpsPosition(pos){
  if(!c||!Number.isFinite(c.latitude)||!Number.isFinite(c.longitude)){gpsStatus('⚠️ وصل تحديث موقع غير صالح؛ مستمرين في انتظار GPS.');gpsRender();return}
  const accuracy=Number(c.accuracy)||999,point={lat:Number(c.latitude),lon:Number(c.longitude),at:now,accuracy};
  gps.lastFixAt=Date.now();
- // Accept lower-quality fixes too; rejecting every fix above 100m can leave the activity timer running with zero distance.
- if(accuracy>250){gpsStatus(`📡 إشارة GPS ضعيفة جدًا (${Math.round(accuracy)}م). التسجيل والوقت مستمران؛ افتح المكان وحسّن إشارة الموقع.`);gpsRender();return}
- if(!gps.last){gps.last=point;gps.points.push(point);gpsMapPoint(point);gpsStatus(`📍 تم تثبيت نقطة البداية بدقة ${Math.round(accuracy)}م. جاري انتظار الحركة…`);gpsRender();return}
- const d=gpsHaversine(gps.last,point),dt=Math.max(0.1,(now-gps.last.at)/1000);
- if(!Number.isFinite(d)||d<0){gpsRender();return}
- const speedKmh=(d/dt)*3600;
- const maxPlausibleKmh=gps.kind==='walk'?18:40;
- // Ignore large GPS jumps, but re-anchor after a very large jump so future fixes are not compared to a stale point.
- if(speedKmh>maxPlausibleKmh && d>Math.max(0.035,((maxPlausibleKmh/3600)*dt*1.8))){
-   if(d>0.25 || dt>30)gps.last=point;
-   gpsStatus(`📡 تجاهلنا قفزة GPS غير منطقية (${Math.round(d*1000)}م خلال ${Math.round(dt)}ث). مستمرين في انتظار قراءة مستقرة.`);gpsRender();return;
+ // Always show the current position, but do not let low-confidence fixes add distance.
+ if(accuracy<=150)gpsMoveMarker(point);
+ if(accuracy>150){gpsStatus(`📡 دقة GPS ضعيفة (${Math.round(accuracy)}م). بنعرض موقعك لكن مش هنضيف مسافة غير موثوقة.`);gpsRender();return}
+ if(!gps.last){gps.last=point;gps.points=[point];gpsMapPoint(point);gpsStatus(`📍 نقطة البداية اتثبتت بدقة ${Math.round(accuracy)}م. بننتظر قراءة مستقرة قبل حساب المسافة.`);gpsRender();return}
+ const d=gpsHaversine(gps.last,point),dt=(now-gps.last.at)/1000;
+ if(!Number.isFinite(d)||d<0||!Number.isFinite(dt)||dt<2){gpsRender();return}
+ const meters=d*1000,speedKmh=(d/dt)*3600;
+ const maxKmh=gps.kind==='walk'?12:25;
+ // Reject GPS teleporting: require plausible speed and account for reported accuracy.
+ const allowedMeters=(maxKmh/3.6)*dt + Math.min(accuracy+gps.last.accuracy,45);
+ if(speedKmh>maxKmh || meters>allowedMeters){
+   // Re-anchor only after several seconds; never add the jump itself to distance.
+   if(dt>=8&&accuracy<=60)gps.last=point;
+   gpsStatus(`📡 تجاهلنا قفزة GPS غير منطقية (${Math.round(meters)}م خلال ${Math.round(dt)}ث). المسافة لم تُحسب؛ بننتظر قراءة ثابتة.`);gpsRender();return;
  }
- // Use an accuracy-aware small-motion threshold, with a hard cap so normal walking can accumulate distance.
- const noiseMeters=Math.max(1.2,Math.min(4,accuracy*0.035));
- if(d*1000<noiseMeters){gps.points.push(point);gps.points=gps.points.filter(p=>p.at>=now-60000);gpsRender();return}
+ const noiseMeters=Math.max(2.5,Math.min(7,(accuracy+gps.last.accuracy)*.12));
+ if(meters<noiseMeters){gpsRender();return}
+ // First movement segment must be stable and reasonably accurate to prevent startup jumps.
+ if(gps.points.length<2&&accuracy>60){gps.last=point;gps.points.push(point);gpsRender();return}
  gps.km+=d;gps.last=point;gps.points.push(point);gps.points=gps.points.filter(p=>p.at>=now-60000);
  gpsMapPoint(point);gpsStatus(`✅ المسافة بتتحدث · ${gps.km.toFixed(3)} كم · دقة ${Math.round(accuracy)}م`);gpsRender();
 }
@@ -194,7 +198,7 @@ function muscleRecovery(muscle){const now=Date.now();let fatigue=0;for(const x o
  else continue;
  const share=targets[muscle]||0;if(!share)continue;const hours=Math.max(0,(now-stamp)/3600000);if(hours>baseHours*2)continue;const load=Math.min(78,share*volume*66);fatigue+=load*Math.exp(-hours/(baseHours/2.8));}
  return Math.max(0,Math.min(100,Math.round(100-fatigue)));}
-function renderMuscleRecovery(){if(!$('muscleRecovery'))return;const keys=Object.keys(MUSCLES);$('muscleRecovery').innerHTML=keys.map(m=>{const recovery=muscleRecovery(m);return `<div class="recovery-item"><div class="recovery-head"><b>${MUSCLES[m]}</b><span>${recovery}% تعافٍ</span></div><div class="progress"><span style="width:${recovery}%;background:${recovery<40?'#ff5a00':recovery<75?'#ff8a38':'#8c969f'}"></span></div><small>${recovery<40?'إجهاد مرتفع نسبيًا — الراحة قد تفيد':recovery<75?'تعافٍ مستمر':'جاهزية تقديرية أعلى'}</small></div>`}).join('');document.querySelectorAll('.muscle-zone').forEach(el=>{const r=muscleRecovery(el.dataset.muscle);el.style.fill=`rgba(255,90,0,${Math.max(.05,(100-r)/100*.92)})`;el.style.opacity=String(Math.max(.15,(100-r)/100))})}
+function renderMuscleRecovery(){if(!$('muscleRecovery'))return;const keys=Object.keys(MUSCLES);$('muscleRecovery').innerHTML=keys.map(m=>{const recovery=muscleRecovery(m);return `<div class="recovery-item"><div class="recovery-head"><b>${MUSCLES[m]}</b><span>${recovery}% تعافٍ</span></div><div class="progress"><span style="width:${recovery}%;background:${recovery<40?'#ff5a00':recovery<75?'#ff8a38':recovery>=98?'#22c55e':'#a3b18a'}"></span></div><small>${recovery<40?'إجهاد مرتفع نسبيًا — الراحة قد تفيد':recovery<75?'تعافٍ مستمر':'جاهزية تقديرية أعلى'}</small></div>`}).join('');document.querySelectorAll('.muscle-zone').forEach(el=>{const r=muscleRecovery(el.dataset.muscle);el.style.fill=r>=98?'rgba(34,197,94,.24)':r>=90?'rgba(132,204,22,.20)':`rgba(255,90,0,${Math.max(.08,(100-r)/100*.95)})`;el.style.stroke=r>=98?'#4ade80':r>=90?'#a3e635':'#ff873d';el.style.strokeWidth=r>=98?'1.8':'1';el.style.opacity=String(r>=98?1:Math.max(.35,(100-r)/100))})}
 function renderDailyHistory(){
  const host=$("dailyHistoryList");if(!host)return;
  const logs=ownLogs(current);
