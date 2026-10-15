@@ -681,3 +681,63 @@ img,svg,video,canvas{max-width:100%}
 @media(prefers-reduced-motion:no-preference){
   #home .quickstats .stat::after{transition:background .35s ease,filter .35s ease}
 }
+
+
+/* Reliable progress perimeter: SVG stroke follows the rounded rectangle, not a circular gauge */
+#home .quickstats .stat{
+  --card-progress-color:#ff7417;
+  --card-progress-number:0;
+  position:relative;
+  isolation:isolate;
+  overflow:hidden;
+  border:1px solid #34363b;
+  border-radius:24px;
+  background:linear-gradient(145deg,#15191f 0%,#0e1014 72%);
+  box-shadow:inset 0 1px 0 #ffffff08,0 8px 22px #0003;
+}
+#home .quickstats .stat.calories{--card-progress-color:#ff7417}
+#home .quickstats .stat.waterstat{--card-progress-color:#35c8ff}
+#home .quickstats .stat.sleepstat{--card-progress-color:#b77aff}
+#home .quickstats .stat.activitystat{--card-progress-color:#55dfa0}
+#home .quickstats .stat .card-progress-outline{
+  display:block!important;
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  overflow:visible;
+  pointer-events:none;
+  z-index:5;
+}
+#home .quickstats .stat .card-progress-outline path{
+  fill:none;
+  stroke:var(--card-progress-color);
+  stroke-width:1.15;
+  stroke-linecap:round;
+  stroke-linejoin:round;
+  stroke-dasharray:100 100;
+  stroke-dashoffset:calc(100 - var(--card-progress-number));
+  filter:drop-shadow(0 0 2px var(--card-progress-color)) drop-shadow(0 0 5px color-mix(in srgb,var(--card-progress-color) 45%,transparent));
+  transition:stroke-dashoffset .45s ease;
+}
+#home .quickstats .stat .gauge{
+  width:100%;height:auto;min-height:0;flex:0 0 auto;
+  margin:10px auto 8px;border-radius:0;background:none!important;
+  filter:none!important;box-shadow:none!important;
+  display:flex;align-items:center;justify-content:center;
+}
+#home .quickstats .stat .gauge::before,
+#home .quickstats .stat .gauge::after{display:none!important}
+#home .quickstats .stat .gauge-inner{
+  width:auto;height:auto;min-width:0;min-height:0;
+  padding:0;border-radius:0;background:transparent!important;overflow:visible;
+}
+#home .quickstats .stat .gauge-inner strong{font-variant-numeric:tabular-nums}
+#home .quickstats .stat>small,
+#home .quickstats .stat>strong,
+#home .quickstats .stat>.gauge{position:relative;z-index:1}
+@media(max-width:700px){
+  #home .quickstats{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  #home .quickstats .stat{min-width:0;min-height:150px;padding:14px 10px;border-radius:22px}
+  #home .quickstats .stat>small{line-height:1.45;overflow-wrap:anywhere}
+}
