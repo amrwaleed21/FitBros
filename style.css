@@ -355,3 +355,20 @@ body{background:radial-gradient(ellipse at 8% 0%,rgba(255,106,0,.105),transparen
 .home-workout-panel .workout-fields input::placeholder{color:#818a95}
 .home-workout-panel .workout-fields input:focus{outline:0;border-color:#ff780f;box-shadow:0 0 0 3px #ff780f20}
 @media(max-width:480px){.home-workout-panel .workout-all-select,.home-workout-panel #workoutSearch{min-height:54px;font-size:16px}.home-workout-panel .workout-fields>div{padding:10px}}
+
+/* FitBros workout catalog: food-catalog-like browsing and friendly feedback */
+.home-workout-panel .workout-title{display:flex;align-items:center;gap:12px}
+.workout-dumbbell-icon{width:38px;height:30px;flex:0 0 auto;color:#ff6a00;filter:drop-shadow(0 0 7px #ff5a0040)}
+.home-workout-panel .workout-category-chips{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 10px}
+.home-workout-panel .workout-category-chips button{border:1px solid #383b40;border-radius:15px;background:#202328;color:#e9e9e9;padding:9px 13px;font:inherit;font-size:14px;cursor:pointer;transition:transform .16s,background .16s,border-color .16s}
+.home-workout-panel .workout-category-chips button.active{background:#3a2115;border-color:#ff6a00;color:#ffb27d;box-shadow:0 0 0 1px #ff6a0025}
+.home-workout-panel .workout-search-results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;max-height:420px;overflow:auto;padding:3px 2px 8px;margin:8px 0 16px}
+.home-workout-panel .workout-result{display:flex;align-items:center;gap:9px;text-align:right;min-width:0;min-height:68px;padding:11px;border:1px solid #353940;border-radius:15px;background:linear-gradient(145deg,#252930,#1c1f24);color:#f4f4f4;cursor:pointer;transition:transform .16s,border-color .16s,box-shadow .16s}
+.home-workout-panel .workout-result:active{transform:scale(.98)}
+.home-workout-panel .workout-result.selected,.home-workout-panel .workout-result:hover{border-color:#ff6a00;box-shadow:0 0 0 1px #ff6a0033;background:linear-gradient(145deg,#30261f,#202126)}
+.home-workout-panel .workout-result-icon{display:grid;place-items:center;flex:0 0 34px;width:34px;height:34px;border-radius:11px;background:#3b2519;color:#ff9a52;font-size:18px}
+.home-workout-panel .workout-result-name{min-width:0;flex:1;font-weight:700;font-size:14px;line-height:1.45;overflow-wrap:anywhere}
+.home-workout-panel .workout-result-name small{display:block;color:#b8bbc1;font-size:11px;font-weight:500;margin-top:3px}
+.home-workout-panel .workout-result-add{color:#ff8a38;font-size:21px;font-weight:700}
+.home-workout-panel .workout-empty{grid-column:1/-1;padding:18px;text-align:center;border:1px dashed #4b4e54;border-radius:14px}
+@media(max-width:480px){.home-workout-panel .workout-search-results{grid-template-columns:1fr;max-height:360px}.home-workout-panel .workout-result{min-height:62px}.home-workout-panel .workout-category-chips button{font-size:12px;padding:8px 10px}}
