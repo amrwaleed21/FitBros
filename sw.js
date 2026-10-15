@@ -1,10 +1,10 @@
 /* FitBros offline shell cache. Keep this file at the site root. */
 const CACHE_PREFIX = 'fitbros-shell-';
-const CACHE_NAME = CACHE_PREFIX + '20261015-live-search-fix2';
+const CACHE_NAME = CACHE_PREFIX + '20261015-cementfit-inapp-store';
 const APP_SHELL = [
-  './', './index.html', './style.css?v=20261015live-search-fix2', './app.js?v=20261015live-search-fix2',
+  './', './index.html', './cementfit.html', './cementfit-product.html', './style.css?v=20261015cementfit', './app.js?v=20261015live-search-fix2',
   './supabase-config.js', './touch-feedback.js?v=20261015live-search-fix2', './settings.html',
-  './settings.js', './foods.json', './icon.png', './background.png', './manifest.webmanifest'
+  './settings.js', './foods.json', './icon.png', './cementfit-logo.png', './background.png', './manifest.webmanifest'
 ];
 self.addEventListener('install', event => {
   event.waitUntil((async () => {

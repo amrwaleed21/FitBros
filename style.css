@@ -405,3 +405,19 @@ body{background:radial-gradient(ellipse at 8% 0%,rgba(255,106,0,.105),transparen
 .home-workout-panel .workout-all-toggle .toggle-chevron{margin-inline-start:0!important}
 .home-workout-panel .workout-search-results .workout-result{background:#20252b!important;color:#f8f8f8!important;border:1px solid #383f47!important}
 .home-workout-panel .workout-search-results .workout-result:active,.home-workout-panel .workout-search-results .workout-result.selected{background:#342217!important;border-color:#ff7a18!important}
+
+
+/* CementFit store shortcut on FitBros home */
+.cementfit-promo{grid-column:1/-1;display:grid;grid-template-columns:minmax(100px, .78fr) minmax(0,1.5fr);align-items:center;gap:16px;overflow:hidden;position:relative;border:1px solid rgba(255,90,0,.36);background:radial-gradient(circle at 12% 15%,rgba(255,90,0,.17),transparent 42%),linear-gradient(135deg,#191919,#0b0c0e 72%);box-shadow:0 12px 32px rgba(0,0,0,.24)}
+.cementfit-promo:before{content:"";position:absolute;top:0;left:12%;right:12%;height:2px;background:linear-gradient(90deg,transparent,#ff5a00,transparent)}
+.cementfit-promo-art{min-width:0;aspect-ratio:1/1;border-radius:15px;overflow:hidden;background:#050505;border:1px solid rgba(255,90,0,.22);box-shadow:0 0 25px rgba(255,90,0,.09)}
+.cementfit-promo-art img{display:block;width:100%;height:100%;object-fit:cover}
+.cementfit-promo-copy{min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:7px}
+.cementfit-kicker{font-size:10px;font-weight:900;letter-spacing:2px;color:#ff8a43;direction:ltr}
+.cementfit-promo-copy h3{margin:0;font-size:clamp(16px,3vw,21px);line-height:1.45}
+.cementfit-promo-copy p{margin:0;font-size:12px;line-height:1.8}
+.cementfit-visit{display:inline-flex;align-items:center;justify-content:center;gap:10px;margin-top:5px;min-height:43px;padding:10px 15px;border-radius:12px;color:#fff;font-weight:900;font-size:13px;background:linear-gradient(135deg,#ff6a13,#d94700);border:1px solid rgba(255,170,110,.38);box-shadow:0 7px 20px rgba(255,90,0,.2);transition:transform .18s,box-shadow .18s}
+.cementfit-visit svg{width:18px;height:18px;flex:none}
+.cementfit-visit:active{transform:scale(.97);box-shadow:0 0 0 rgba(255,90,0,0)}
+@media(max-width:500px){.cementfit-promo{grid-template-columns:100px minmax(0,1fr);gap:12px;padding:12px!important}.cementfit-promo-art{border-radius:12px}.cementfit-promo-copy p{font-size:11px}.cementfit-visit{min-height:40px;padding:9px 12px;font-size:12px}}
+@media(max-width:360px){.cementfit-promo{grid-template-columns:78px minmax(0,1fr);gap:9px}.cementfit-promo-copy h3{font-size:14px}.cementfit-promo-copy p{font-size:10px}.cementfit-visit{font-size:11px;padding:8px 10px}}
