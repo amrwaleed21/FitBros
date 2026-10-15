@@ -1,8 +1,8 @@
 /* FitBros offline shell cache. Keep this file at the site root. */
 const CACHE_PREFIX = 'fitbros-shell-';
-const CACHE_NAME = CACHE_PREFIX + '20261015-neon-muscle-map';
+const CACHE_NAME = CACHE_PREFIX + '20261015-muscle-body-activity-tabs';
 const APP_SHELL = [
-  './', './index.html', './cementfit.html', './cementfit-product.html', './style.css?v=20261015-neon-muscle-map', './app.js?v=20261015-neon-muscle-map',
+  './', './index.html', './cementfit.html', './cementfit-product.html', './style.css?v=20261015-muscle-body-activity-tabs', './app.js?v=20261015-muscle-body-activity-tabs',
   './supabase-config.js', './touch-feedback.js?v=20261015live-search-fix2', './settings.html',
   './settings.js', './foods.json', './icon.png', './cementfit-logo.png', './background.png', './manifest.webmanifest'
 ];
