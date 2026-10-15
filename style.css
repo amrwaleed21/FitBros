@@ -421,3 +421,6 @@ body{background:radial-gradient(ellipse at 8% 0%,rgba(255,106,0,.105),transparen
 .cementfit-visit:active{transform:scale(.97);box-shadow:0 0 0 rgba(255,90,0,0)}
 @media(max-width:500px){.cementfit-promo{grid-template-columns:100px minmax(0,1fr);gap:12px;padding:12px!important}.cementfit-promo-art{border-radius:12px}.cementfit-promo-copy p{font-size:11px}.cementfit-visit{min-height:40px;padding:9px 12px;font-size:12px}}
 @media(max-width:360px){.cementfit-promo{grid-template-columns:78px minmax(0,1fr);gap:9px}.cementfit-promo-copy h3{font-size:14px}.cementfit-promo-copy p{font-size:10px}.cementfit-visit{font-size:11px;padding:8px 10px}}
+
+/* Shared activity toggle */
+.joint-activity-panel{margin:0 0 14px;border-color:rgba(255,106,0,.45)}.joint-activity-toggle{display:flex;align-items:flex-start;gap:12px;cursor:pointer;margin:0!important}.joint-activity-toggle input{width:22px;height:22px;min-width:22px;accent-color:#ff6a00;margin:3px 0 0}.joint-activity-toggle span{display:flex;flex-direction:column;gap:6px}.joint-activity-toggle strong{color:#fff;font-size:1rem}.joint-activity-toggle small{color:var(--muted,#aaa);font-size:.88rem;line-height:1.6}
