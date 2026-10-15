@@ -398,15 +398,16 @@ function setupWorkoutBuilder(){
 }
 try{setupWorkoutBuilder()}catch(err){console.error('FitBros workout builder init:',err)}
 function activityLoad(x){
- const km=Math.max(0,+x.km||0),min=Math.max(0,+x.min||((+x.durationMs||0)/60000)),pace=+x.pace||(km>0&&min>0?min/km:0),isRun=x.type==='run';
- // Estimate session load from distance, duration, and pace; these are coaching estimates, not lab measurements.
- let intensity=isRun?1.0:.48;
- if(isRun&&pace>0){intensity=pace<=4.5?1.55:pace<=5.5?1.35:pace<=6.5?1.15:pace<=7.5?1.0:pace<=9?.82:.65;}
- if(!isRun&&pace>0){intensity=pace<=8?0.85:pace<=10?0.65:pace<=13?.48:.35;}
- const longFactor=km>0?(km>=15?1.65:km>=10?1.45:km>=7?1.25:km>=4?1.08:km>=2?.85:.55):Math.max(.25,Math.min(1.25,min/45));
- const load=Math.max(.12,Math.min(2.2,(km>0?km/4:min/45)*intensity*longFactor));
+ // Sanity-check distance against elapsed time. GPS spikes can otherwise turn a short jog into a fake ultra-run.
+ let km=Math.max(0,Number(x.km)||0),min=Math.max(0,Number(x.min)||((Number(x.durationMs)||0)/60000)),pace=Number(x.pace)||(km>0&&min>0?min/km:0),isRun=x.type==='run';
+ if(km>0&&min>0){const speed=km/(min/60);if(speed>30){km=min*0.5;pace=min/km;}}
+ let intensity=isRun?1:.45;
+ if(isRun&&pace>0){intensity=pace<=4.5?1.5:pace<=5.5?1.35:pace<=6.5?1.18:pace<=7.5?1.05:pace<=9?.9:.72;}
+ if(!isRun&&pace>0){intensity=pace<=8?.9:pace<=10?.72:pace<=13?.55:.4;}
+ const longFactor=km>0?(km>=30?1.9:km>=20?1.7:km>=15?1.55:km>=10?1.4:km>=7?1.25:km>=4?1.1:km>=2?.9:.65):Math.max(.2,Math.min(1.3,min/45));
+ const load=Math.max(.08,Math.min(3.5,(km>0?km/4:min/45)*intensity*longFactor));
  const targets=isRun?{calves:.24,gastrocnemius:.18,soleus:.20,quads:.18,rectusFemoris:.10,vastusLateralis:.08,vastusMedialis:.08,hamstrings:.15,bicepsFemoris:.08,semitendinosus:.04,semimembranosus:.03,glutes:.14,hipFlexors:.08,tibialisAnterior:.05,abs:.025,obliques:.025,lowerBack:.025}:{calves:.20,gastrocnemius:.13,soleus:.18,quads:.12,rectusFemoris:.05,vastusLateralis:.04,vastusMedialis:.04,hamstrings:.10,bicepsFemoris:.05,semitendinosus:.025,semimembranosus:.025,glutes:.12,hipFlexors:.08,tibialisAnterior:.10,abs:.025,obliques:.025,lowerBack:.02};
- return {targets,load,baseHours:isRun?(km>=15?72:km>=10?60:km>=5?48:36):(km>=10?36:km>=5?30:km>=2?20:12),pace,intensity,long:km>=10};
+ return {targets,load,baseHours:isRun?(km>=30?84:km>=15?72:km>=10?60:km>=5?48:36):(km>=10?36:km>=5?30:km>=2?20:12),pace,intensity,long:km>=10};
 }
 function muscleRecovery(muscle){const now=Date.now();let fatigue=0;for(const x of ownLogs(current)){let targets={},volume=0,baseHours=48,stamp=0;
  if(x.type==='workout'){const ex=EXERCISES[x.exerciseKey];targets=x.targets||ex?.targets||(x.muscle?{[x.muscle]:1}:{});const sets=Math.max(1,Number(x.sets)||1), reps=Math.max(0,Number(x.reps)||0), seconds=Math.max(0,Number(x.seconds)||0);const effort= reps>0 ? (sets*reps/30) : (sets*seconds/90);volume=Math.min(1.5,Math.max(.08,effort));baseHours=targets[muscle]&&targets[muscle]>=.4?36:28;stamp=Number(x.createdAt)||new Date((x.date||today())+'T12:00:00').getTime();
@@ -414,7 +415,7 @@ function muscleRecovery(muscle){const now=Date.now();let fatigue=0;for(const x o
   const aliases={bicepsLong:targets.biceps*.55||0,bicepsShort:targets.biceps*.45||0,tricepsLong:targets.triceps*.35||0,tricepsLateral:targets.triceps*.65||0,upperChest:targets.chest*.35||0,rectusFemoris:targets.quads*.38||0,vastusLateralis:targets.quads*.34||0,vastusMedialis:targets.quads*.28||0,gastrocnemius:targets.calves*.62||0,soleus:targets.calves*.38||0,bicepsFemoris:targets.hamstrings*.45||0,semitendinosus:targets.hamstrings*.30||0,semimembranosus:targets.hamstrings*.25||0};for(const [k,v] of Object.entries(aliases))if(v)targets[k]=v;
  }else if(x.type==='run'||x.type==='walk'){const a=activityLoad(x);targets=a.targets;volume=a.load;baseHours=a.baseHours;stamp=Number(x.createdAt)||new Date((x.date||today())+'T12:00:00').getTime();}
  else continue;
- const share=targets[muscle]||0;if(!share)continue;const hours=Math.max(0,(now-stamp)/3600000);if(hours>baseHours*2)continue;const intensity=1+Math.min(1,Math.max(0,Number(x.weightKg)||0)/40)*.45;const load=Math.min(8,share*volume*5.5*intensity);fatigue+=load*Math.exp(-hours/(baseHours/2.4));}
+ const share=targets[muscle]||0;if(!share)continue;const hours=Math.max(0,(now-stamp)/3600000);if(hours>baseHours*2)continue;const intensity=1+Math.min(1,Math.max(0,Number(x.weightKg)||0)/40)*.45;const load=Math.min(48,share*volume*(x.type==='run'?48:x.type==='walk'?22:15)*intensity);fatigue+=load*Math.exp(-hours/(baseHours/2.4));}
  return Math.max(0,Math.min(100,Math.round(100-fatigue)));}
 function renderMuscleRecovery(){if(!$('muscleRecovery'))return;const keys=Object.keys(MUSCLES);$('muscleRecovery').innerHTML=keys.map(m=>{const recovery=muscleRecovery(m);return `<div class="recovery-item"><div class="recovery-head"><b>${MUSCLES[m]}</b><span>${recovery}% تعافٍ</span></div><div class="progress"><span style="width:${recovery}%;background:${recovery<40?'#ff5a00':recovery<75?'#ff8a38':recovery>=98?'#22c55e':'#a3b18a'}"></span></div><small>${recovery<40?'إجهاد مرتفع نسبيًا — الراحة قد تفيد':recovery<75?'تعافٍ مستمر':'جاهزية تقديرية أعلى'}</small></div>`}).join('');document.querySelectorAll('.muscle-zone').forEach(el=>{const r=muscleRecovery(el.dataset.muscle);el.style.fill=r>=98?'rgba(34,197,94,.24)':r>=90?'rgba(132,204,22,.20)':`rgba(255,90,0,${Math.max(.08,(100-r)/100*.95)})`;el.style.stroke=r>=98?'#4ade80':r>=90?'#a3e635':'#ff873d';el.style.strokeWidth=r>=98?'1.8':'1';el.style.opacity=String(r>=98?1:Math.max(.35,(100-r)/100))})}
 function renderDailyHistory(){
