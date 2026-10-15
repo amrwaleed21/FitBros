@@ -320,3 +320,23 @@ body{background:radial-gradient(ellipse at 8% 0%,rgba(255,106,0,.105),transparen
 .challenge-submetric{margin-top:10px}.challenge-submetric small{display:block;margin:6px 0;color:var(--muted,#aaa)}.challenge-submetric .progress{height:8px;margin-top:4px}
 /* Food catalog hide controls */
 .food-row{display:flex;align-items:stretch;gap:5px;min-width:0}.food-row .food-item{flex:1;min-width:0;width:100%;}
+
+/* FitBros exercise search */
+.workout-search-results{display:grid;gap:7px;max-height:260px;overflow:auto;margin:8px 0 12px;padding:5px;border:1px solid #38312c;border-radius:14px;background:#111418}.workout-result{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;text-align:right;padding:11px 12px;border:1px solid #2d3035;border-radius:10px;background:#1a1d21;color:#f4f4f5;cursor:pointer}.workout-result:active,.workout-result.selected{border-color:#ff5a00;background:rgba(255,90,0,.13)}.workout-result small{white-space:nowrap;color:#ffab70;font-size:11px}.home-workout-panel #workoutSearch{border-color:#5b3825;background:#101114}.home-workout-panel #workoutSearch:focus{outline:1px solid #ff5a00;box-shadow:0 0 0 3px #ff5a0022}.workout-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.workout-fields>div:first-child{grid-column:1/-1}
+/* Workout builder: clear, comfortable inputs and searchable exercise picker */
+.home-workout-panel .workout-search-results{position:relative;z-index:4;max-height:300px;padding:8px;background:#101318;border:1px solid #59402e;box-shadow:0 12px 28px #0008}
+.home-workout-panel .workout-result{min-height:48px;background:#1b2026;border:1px solid #343b43;border-radius:12px;color:#f7f7f7}
+.home-workout-panel .workout-result:active,.home-workout-panel .workout-result.selected{background:#382113;border-color:#ff6500}
+.home-workout-panel .workout-result small{white-space:nowrap;color:#ffb47c;font-size:11px}
+.home-workout-panel .workout-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:14px 0}
+.home-workout-panel .workout-fields>div{min-width:0;background:#15191e;border:1px solid #343a42;border-radius:14px;padding:10px}
+.home-workout-panel .workout-fields label{display:flex;align-items:center;gap:7px;min-height:30px;font-size:13px;color:#e8e9ec}
+.home-workout-panel .workout-fields input{height:52px;margin:7px 0 0;padding:12px 14px;border:1px solid #424a54;background:#090b0e;border-radius:11px;font-size:18px;text-align:center;color:#fff}
+.home-workout-panel .workout-fields input:focus{border-color:#ff780f;box-shadow:0 0 0 3px #ff780f22}
+.home-workout-panel label[for="workoutWeight"]:before{content:'🏋️';font-size:17px}
+.home-workout-panel label[for="workoutSets"]:before{content:'▦';font-size:18px;color:#ff8a35}
+.home-workout-panel label[for="workoutReps"]:before{content:'🔁';font-size:15px}
+.home-workout-panel label[for="workoutSeconds"]:before{content:'⏱️';font-size:15px}
+.home-workout-panel label[for="workoutDate"]:before{content:'📅 ';}
+.home-workout-panel label[for="workoutSearch"]:before{content:'🔎 ';}
+@media(max-width:480px){.home-workout-panel .workout-fields{gap:8px}.home-workout-panel .workout-fields>div{padding:8px}.home-workout-panel .workout-fields input{height:48px;font-size:17px}.home-workout-panel .workout-fields label{font-size:12px}}
