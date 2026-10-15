@@ -1,8 +1,8 @@
 /* FitBros offline shell cache. Keep this file at the site root. */
 const CACHE_PREFIX = 'fitbros-shell-';
-const CACHE_NAME = CACHE_PREFIX + '20261015-recovery-balanced-v3';
+const CACHE_NAME = CACHE_PREFIX + '20261015-per-activity-joint-toggle';
 const APP_SHELL = [
-  './', './index.html', './cementfit.html', './cementfit-product.html', './style.css?v=20261015jointchallenge-joint-challenges-workout-tab', './app.js?v=20261015jointchallengerecovery-balanced-v3',
+  './', './index.html', './cementfit.html', './cementfit-product.html', './style.css?v=20261015-per-activity-joint-toggle', './app.js?v=20261015-per-activity-joint-toggle',
   './supabase-config.js', './touch-feedback.js?v=20261015live-search-fix2', './settings.html',
   './settings.js', './foods.json', './icon.png', './cementfit-logo.png', './background.png', './manifest.webmanifest'
 ];

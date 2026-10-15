@@ -424,3 +424,6 @@ body{background:radial-gradient(ellipse at 8% 0%,rgba(255,106,0,.105),transparen
 
 /* Shared activity toggle */
 .joint-activity-panel{margin:0 0 14px;border-color:rgba(255,106,0,.45)}.joint-activity-toggle{display:flex;align-items:flex-start;gap:12px;cursor:pointer;margin:0!important}.joint-activity-toggle input{width:22px;height:22px;min-width:22px;accent-color:#ff6a00;margin:3px 0 0}.joint-activity-toggle span{display:flex;flex-direction:column;gap:6px}.joint-activity-toggle strong{color:#fff;font-size:1rem}.joint-activity-toggle small{color:var(--muted,#aaa);font-size:.88rem;line-height:1.6}
+
+/* Per-activity shared challenge switch */
+.per-activity-joint{display:flex;align-items:flex-start;gap:10px;padding:12px;margin:12px 0;border:1px solid rgba(255,106,0,.28);border-radius:14px;background:rgba(255,106,0,.045)}.per-activity-joint input{width:20px;height:20px;min-width:20px;accent-color:#ff6a00;margin:3px 0 0}.per-activity-joint span{display:flex;flex-direction:column;gap:4px}.per-activity-joint strong{font-size:.92rem}.per-activity-joint small{font-size:.8rem;line-height:1.5;color:var(--muted,#aaa)}
