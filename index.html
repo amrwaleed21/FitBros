@@ -1,4 +1,4 @@
-<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#090909"><title>FitBros | خليك أقوى كل يوم</title><link rel="stylesheet" href="style.css?v=20261012ai"><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;600;700&display=swap" rel="stylesheet">
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#090909"><link rel="manifest" href="./manifest.webmanifest"><title>FitBros | خليك أقوى كل يوم</title><link rel="stylesheet" href="style.css?v=20261012ai"><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"><link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@500;600;700&display=swap" rel="stylesheet">
 </head><body>
 <div id="fitbrosSplash" class="fitbros-splash" aria-label="FitBros loading">
   <div class="splash-glow splash-glow-one"></div><div class="splash-glow splash-glow-two"></div>
@@ -40,4 +40,17 @@
     if (event.animationName === 'splashAutoDismiss') dismiss();
   });
 })();
-</script></body></html>
+</script><script>
+// Install the offline shell cache. This keeps the app page available after the WebView is closed for a while.
+(function(){
+  if (!('serviceWorker' in navigator)) return;
+  if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') return;
+  window.addEventListener('load', function(){
+    navigator.serviceWorker.register('./sw.js', {scope:'./'}).then(function(reg){
+      if (reg.waiting) reg.waiting.postMessage({type:'SKIP_WAITING'});
+      reg.update().catch(function(){});
+    }).catch(function(err){ console.warn('FitBros offline cache registration failed:', err); });
+  });
+})();
+</script>
+</body></html>
