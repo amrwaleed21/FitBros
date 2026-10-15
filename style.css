@@ -340,3 +340,18 @@ body{background:radial-gradient(ellipse at 8% 0%,rgba(255,106,0,.105),transparen
 .home-workout-panel label[for="workoutDate"]:before{content:'📅 ';}
 .home-workout-panel label[for="workoutSearch"]:before{content:'🔎 ';}
 @media(max-width:480px){.home-workout-panel .workout-fields{gap:8px}.home-workout-panel .workout-fields>div{padding:8px}.home-workout-panel .workout-fields input{height:48px;font-size:17px}.home-workout-panel .workout-fields label{font-size:12px}}
+
+/* Workout picker: searchable results + complete exercise catalogue */
+.home-workout-panel .workout-all-select{display:block!important;visibility:visible!important;width:100%;min-height:58px;margin:8px 0 14px;padding:14px 44px 14px 14px;border:1px solid #4b535e;border-radius:15px;background:#101419;color:#f7f7f8;font-size:17px;line-height:1.5;appearance:auto;direction:rtl}
+.home-workout-panel .workout-all-select:focus{outline:0;border-color:#ff780f;box-shadow:0 0 0 3px #ff780f22}
+.home-workout-panel #workoutSearch{min-height:58px;padding:14px 16px;border:1px solid #4b535e;border-radius:15px;color:#fff;font-size:17px}
+.home-workout-panel #workoutSearch::placeholder{color:#9da5af;opacity:1}
+.home-workout-panel .workout-search-results{max-height:340px;gap:8px;padding:9px;background:#11151a;border:1px solid #363e47;border-radius:16px}
+.home-workout-panel .workout-result{min-height:54px;padding:12px 14px;border-radius:13px;font-size:15px;line-height:1.5}
+.home-workout-panel .workout-result span{flex:1;min-width:0}
+.home-workout-panel .workout-fields>div{position:relative;background:linear-gradient(145deg,#20262d,#14181d);border:1px solid #3b444f;border-radius:16px;padding:12px;box-shadow:inset 0 1px 0 #ffffff08}
+.home-workout-panel .workout-fields label{font-size:13px;font-weight:750;line-height:1.5;color:#f2c09d}
+.home-workout-panel .workout-fields input{width:100%;box-sizing:border-box;min-height:54px;border:1px solid #4b5662;border-radius:12px;background:#090c10;color:#fff;text-align:center;font-size:20px;font-weight:700;font-variant-numeric:tabular-nums}
+.home-workout-panel .workout-fields input::placeholder{color:#818a95}
+.home-workout-panel .workout-fields input:focus{outline:0;border-color:#ff780f;box-shadow:0 0 0 3px #ff780f20}
+@media(max-width:480px){.home-workout-panel .workout-all-select,.home-workout-panel #workoutSearch{min-height:54px;font-size:16px}.home-workout-panel .workout-fields>div{padding:10px}}
