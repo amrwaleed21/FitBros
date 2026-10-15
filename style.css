@@ -15,40 +15,12 @@ body{background:#0b0d10;line-height:1.55}
 .quickstats{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
 .stat{display:flex;flex-direction:column;align-items:center;text-align:center;min-width:0;gap:7px;padding:14px 8px}
 .stat small{font-size:12px;line-height:1.5}
-.gauge{
-  --progress:0%;
-  --gauge-track:#30363d;
-  width:100px;height:100px;flex:0 0 100px;
-  border-radius:50%;display:grid;place-items:center;
-  background:conic-gradient(from -90deg,var(--gauge-color,var(--orange)) 0 var(--progress),var(--gauge-track) var(--progress) 100%);
-  position:relative;margin:7px auto;
-  isolation:isolate;
-  filter:drop-shadow(0 0 8px color-mix(in srgb,var(--gauge-color,var(--orange)) 24%,transparent));
-  transition:background .45s ease,filter .3s ease;
-}
-.gauge:before{
-  content:"";position:absolute;inset:8px;border-radius:50%;
-  background:radial-gradient(circle at 35% 25%,#1b2027,#0b0d11 72%);
-  box-shadow:inset 0 0 0 1px #ffffff12,0 0 0 1px #000;
-  z-index:-1;
-}
-.gauge:after{
-  content:"";position:absolute;inset:0;border-radius:50%;
-  background:conic-gradient(from -90deg,var(--gauge-color,var(--orange)) 0 var(--progress),transparent var(--progress) 100%);
-  -webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px));
-  mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px));
-  pointer-events:none;
-}
-.gauge[style*="--progress: 100%"],.gauge[style*="--progress:100%"]{
-  filter:drop-shadow(0 0 12px color-mix(in srgb,var(--gauge-color,var(--orange)) 42%,transparent));
-}
-.gauge-inner{min-width:0;padding:3px;text-align:center}
-.gauge-inner strong{font-variant-numeric:tabular-nums}
-@media(max-width:390px){.gauge{width:86px;height:86px;flex-basis:86px}.gauge:before{inset:7px}.gauge:after{-webkit-mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px));mask:radial-gradient(farthest-side,transparent calc(100% - 5px),#000 calc(100% - 4px))}}
+.gauge{--progress:0%;width:92px;height:92px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--gauge-color,var(--orange)) var(--progress),#30363d 0);position:relative;margin:5px auto}
+.gauge:before{content:"";position:absolute;inset:7px;border-radius:50%;background:#14181d;box-shadow:inset 0 0 0 1px #ffffff0b}
 .gauge-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;line-height:1.25;max-width:100%}
 .gauge-inner strong{font-size:18px!important;color:var(--text)!important;margin:0!important;overflow-wrap:anywhere}
 .gauge-inner small{font-size:10px;color:var(--muted)}
-.calories .gauge{--gauge-color:#ff7a18;--gauge-track:#3a2a20}.waterstat .gauge{--gauge-color:#35c8ff;--gauge-track:#16313d}.sleepstat{color:#bba5ff}.sleepstat .gauge{--gauge-color:#b77aff;--gauge-track:#302447}.activitystat strong{font-size:22px!important}
+.calories .gauge{--gauge-color:#ff914d}.waterstat .gauge{--gauge-color:#65cfff}.sleepstat{color:#bba5ff}.sleepstat .gauge{--gauge-color:#bba5ff}.activitystat strong{font-size:22px!important}
 .nav{scroll-behavior:smooth;scroll-snap-type:x proximity}.navbtn{scroll-snap-align:start;transition:background .18s ease,color .18s ease,transform .18s ease}.navbtn:active{transform:scale(.97)}
 .page{animation:pageEnter .22s ease both}@keyframes pageEnter{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
 .app-icon{background:transparent;border:0;object-fit:contain}.brandline .app-icon{width:38px;height:38px}.hero-icon{display:none!important}
@@ -625,119 +597,102 @@ img,svg,video,canvas{max-width:100%}
 }
 
 
-/* FitBros: rounded-rectangle progress perimeter for dashboard metric cards */
-#home .quickstats .stat{
-  --card-progress:0%;
-  --card-progress-color:var(--orange);
-  position:relative;
-  isolation:isolate;
-  overflow:hidden;
-  border:1px solid color-mix(in srgb,var(--card-progress-color) 22%,#343434);
-  border-radius:24px;
-  background:linear-gradient(145deg,#15191f 0%,#0e1014 72%);
-  box-shadow:inset 0 1px 0 #ffffff08,0 8px 22px #0003;
+/* FitBros: progress fills the OUTER rounded-rectangle frame, not an inner circle. */
+#home .quickstats {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
 }
-#home .quickstats .stat::after{
-  content:"";
-  position:absolute;
-  inset:0;
-  border-radius:inherit;
-  padding:3px;
-  pointer-events:none;
-  z-index:3;
-  background:conic-gradient(from -90deg,var(--card-progress-color) 0 var(--card-progress),transparent var(--card-progress) 100%);
-  -webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);
-  -webkit-mask-composite:xor;
-  mask-composite:exclude;
-  opacity:.98;
-  filter:drop-shadow(0 0 5px color-mix(in srgb,var(--card-progress-color) 45%,transparent));
+#home .quickstats .stat {
+  --card-progress-number: 0;
+  --card-progress-color: #ff7417;
+  position: relative;
+  isolation: isolate;
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 158px;
+  overflow: hidden;
+  border: 1px solid #34363b;
+  border-radius: 22px;
+  background: linear-gradient(145deg, #171a20 0%, #0d0f13 78%);
+  box-shadow: inset 0 1px 0 #ffffff08, 0 8px 22px #0003;
 }
-#home .quickstats .stat.calories{--card-progress-color:#ff7417}
-#home .quickstats .stat.waterstat{--card-progress-color:#35c8ff}
-#home .quickstats .stat.sleepstat{--card-progress-color:#b77aff}
-#home .quickstats .stat.activitystat{--card-progress-color:#55dfa0}
-#home .quickstats .stat .gauge{
-  width:100%;height:auto;min-height:0;flex:0 0 auto;
-  margin:10px auto 8px;
-  border-radius:0;
-  background:none!important;
-  filter:none!important;box-shadow:none!important;
-  display:flex;align-items:center;justify-content:center;
+#home .quickstats .stat.calories { --card-progress-color: #ff7417; }
+#home .quickstats .stat.waterstat { --card-progress-color: #35c8ff; }
+#home .quickstats .stat.sleepstat { --card-progress-color: #b77aff; }
+#home .quickstats .stat.activitystat { --card-progress-color: #55dfa0; }
+#home .quickstats .stat .card-progress-outline {
+  display: block !important;
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 4;
 }
-#home .quickstats .stat .gauge::before,
-#home .quickstats .stat .gauge::after{display:none!important}
-#home .quickstats .stat .gauge-inner{
-  width:auto;height:auto;min-width:0;min-height:0;
-  padding:0;border-radius:0;background:transparent!important;
-  overflow:visible;
+#home .quickstats .stat .card-progress-outline path {
+  fill: none;
+  stroke: var(--card-progress-color);
+  stroke-width: 1.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: var(--card-progress-number) 100;
+  stroke-dashoffset: 0;
+  filter: drop-shadow(0 0 2px var(--card-progress-color))
+          drop-shadow(0 0 5px color-mix(in srgb, var(--card-progress-color) 42%, transparent));
+  transition: stroke-dasharray .45s ease, filter .3s ease;
 }
-#home .quickstats .stat .gauge-inner strong{font-size:clamp(17px,4vw,23px)!important}
-@media(max-width:700px){
-  #home .quickstats{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-  #home .quickstats .stat{min-width:0;min-height:150px;padding:14px 10px;border-radius:22px}
-  #home .quickstats .stat>small{line-height:1.45;overflow-wrap:anywhere}
-  #home .quickstats .stat .gauge{margin:12px auto 10px}
+#home .quickstats .stat > small,
+#home .quickstats .stat > strong,
+#home .quickstats .stat > .gauge {
+  position: relative;
+  z-index: 1;
 }
-@media(prefers-reduced-motion:no-preference){
-  #home .quickstats .stat::after{transition:background .35s ease,filter .35s ease}
-}
-
-
-/* Reliable progress perimeter: SVG stroke follows the rounded rectangle, not a circular gauge */
-#home .quickstats .stat{
-  --card-progress-color:#ff7417;
-  --card-progress-number:0;
-  position:relative;
-  isolation:isolate;
-  overflow:hidden;
-  border:1px solid #34363b;
-  border-radius:24px;
-  background:linear-gradient(145deg,#15191f 0%,#0e1014 72%);
-  box-shadow:inset 0 1px 0 #ffffff08,0 8px 22px #0003;
-}
-#home .quickstats .stat.calories{--card-progress-color:#ff7417}
-#home .quickstats .stat.waterstat{--card-progress-color:#35c8ff}
-#home .quickstats .stat.sleepstat{--card-progress-color:#b77aff}
-#home .quickstats .stat.activitystat{--card-progress-color:#55dfa0}
-#home .quickstats .stat .card-progress-outline{
-  display:block!important;
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  overflow:visible;
-  pointer-events:none;
-  z-index:5;
-}
-#home .quickstats .stat .card-progress-outline path{
-  fill:none;
-  stroke:var(--card-progress-color);
-  stroke-width:1.15;
-  stroke-linecap:round;
-  stroke-linejoin:round;
-  stroke-dasharray:100 100;
-  stroke-dashoffset:calc(100 - var(--card-progress-number));
-  filter:drop-shadow(0 0 2px var(--card-progress-color)) drop-shadow(0 0 5px color-mix(in srgb,var(--card-progress-color) 45%,transparent));
-  transition:stroke-dashoffset .45s ease;
-}
-#home .quickstats .stat .gauge{
-  width:100%;height:auto;min-height:0;flex:0 0 auto;
-  margin:10px auto 8px;border-radius:0;background:none!important;
-  filter:none!important;box-shadow:none!important;
-  display:flex;align-items:center;justify-content:center;
+/* Keep the card's text/value, remove the old circular gauge ring completely. */
+#home .quickstats .stat .gauge {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  width: 100% !important;
+  height: auto !important;
+  min-height: 0 !important;
+  margin: 12px auto 9px !important;
+  padding: 0 !important;
+  flex: 0 0 auto;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  filter: none !important;
 }
 #home .quickstats .stat .gauge::before,
-#home .quickstats .stat .gauge::after{display:none!important}
-#home .quickstats .stat .gauge-inner{
-  width:auto;height:auto;min-width:0;min-height:0;
-  padding:0;border-radius:0;background:transparent!important;overflow:visible;
+#home .quickstats .stat .gauge::after { content: none !important; display: none !important; }
+#home .quickstats .stat .gauge-inner {
+  display: flex !important;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: auto !important;
+  height: auto !important;
+  min-width: 0;
+  min-height: 0;
+  padding: 0 !important;
+  overflow: visible !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
 }
-#home .quickstats .stat .gauge-inner strong{font-variant-numeric:tabular-nums}
-#home .quickstats .stat>small,
-#home .quickstats .stat>strong,
-#home .quickstats .stat>.gauge{position:relative;z-index:1}
-@media(max-width:700px){
-  #home .quickstats{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-  #home .quickstats .stat{min-width:0;min-height:150px;padding:14px 10px;border-radius:22px}
-  #home .quickstats .stat>small{line-height:1.45;overflow-wrap:anywhere}
+#home .quickstats .stat .gauge-inner strong {
+  font-size: clamp(20px, 5vw, 28px) !important;
+  line-height: 1.2 !important;
+  text-shadow: none !important;
+}
+#home .quickstats .stat .gauge-inner small { font-size: 13px !important; }
+@media (max-width: 420px) {
+  #home .quickstats { gap: 8px; }
+  #home .quickstats .stat { min-height: 150px; padding: 13px 9px; border-radius: 20px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #home .quickstats .stat .card-progress-outline path { transition: none; }
 }
