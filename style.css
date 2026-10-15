@@ -427,3 +427,24 @@ body{background:radial-gradient(ellipse at 8% 0%,rgba(255,106,0,.105),transparen
 
 /* Per-activity shared challenge switch */
 .per-activity-joint{display:flex;align-items:flex-start;gap:10px;padding:12px;margin:12px 0;border:1px solid rgba(255,106,0,.28);border-radius:14px;background:rgba(255,106,0,.045)}.per-activity-joint input{width:20px;height:20px;min-width:20px;accent-color:#ff6a00;margin:3px 0 0}.per-activity-joint span{display:flex;flex-direction:column;gap:4px}.per-activity-joint strong{font-size:.92rem}.per-activity-joint small{font-size:.8rem;line-height:1.5;color:var(--muted,#aaa)}
+
+
+/* Premium neon dashboard + dimensional interactive recovery anatomy */
+.stat{border-color:color-mix(in srgb,currentColor 25%,#292f37);background:radial-gradient(ellipse at 50% 0%,color-mix(in srgb,currentColor 13%,transparent),transparent 72%),linear-gradient(145deg,#1b2027,#101317);box-shadow:inset 0 1px 0 #ffffff12,0 8px 24px #0005;transition:transform .22s,border-color .22s,box-shadow .22s}
+.stat:hover{transform:translateY(-2px);border-color:color-mix(in srgb,currentColor 55%,#30343b);box-shadow:inset 0 1px 0 #ffffff18,0 0 22px color-mix(in srgb,currentColor 18%,transparent),0 12px 26px #0006}
+.gauge{filter:drop-shadow(0 0 8px color-mix(in srgb,var(--gauge-color) 30%,transparent));background:conic-gradient(var(--gauge-color) var(--progress),#30363d 0);box-shadow:0 0 0 1px color-mix(in srgb,var(--gauge-color) 22%,transparent),inset 0 0 18px #0005;transition:filter .25s}
+.gauge:before{background:radial-gradient(circle at 35% 25%,#252b32,#101317 72%);box-shadow:inset 0 3px 10px #000a,inset 0 0 0 1px #ffffff15}
+.calories .gauge{filter:drop-shadow(0 0 9px #ff914d66)}.waterstat .gauge{filter:drop-shadow(0 0 9px #65cfff66)}.sleepstat .gauge{filter:drop-shadow(0 0 9px #bba5ff66)}
+.stat .gauge-inner strong{text-shadow:0 0 12px color-mix(in srgb,var(--gauge-color) 22%,transparent)}
+#muscles .body-map{position:relative;overflow:hidden;background:radial-gradient(ellipse at 50% 20%,#35404b 0,transparent 44%),linear-gradient(150deg,#202832,#101318 75%);box-shadow:inset 0 1px 0 #ffffff15,inset 0 -18px 35px #0005,0 12px 28px #0005}
+#muscles .body-map:after{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,#ffffff08,transparent 24%,transparent 75%,#ffffff04);border-radius:inherit}
+#muscles .body-base{fill:#424c58;stroke:#a4afb9;stroke-width:1.4;filter:drop-shadow(0 3px 3px #0008)}
+#muscles .muscle-zone{cursor:pointer;stroke:#ffb17b;stroke-width:1.15;filter:drop-shadow(0 0 2px #ff650044);transition:fill .22s,stroke .22s,stroke-width .22s,filter .22s,opacity .22s}
+#muscles .muscle-zone:hover,#muscles .muscle-zone:focus-visible{stroke:#fff1df!important;stroke-width:2.4!important;filter:drop-shadow(0 0 5px #ff6500cc)!important;opacity:1!important;outline:none}
+#muscles .muscle-zone.selected-muscle{stroke:#fff!important;stroke-width:2.7!important;filter:drop-shadow(0 0 7px #ff6500)!important;opacity:1!important}
+#muscles .recovery-item{cursor:pointer;transition:transform .2s,border-color .2s,box-shadow .2s;background:linear-gradient(145deg,#252c34,#171b20);box-shadow:inset 0 1px 0 #ffffff0d,0 5px 14px #0002}
+#muscles .recovery-item:active{transform:scale(.99)}
+#muscles .recovery-item.selected-muscle{border-color:#ff873d;box-shadow:0 0 0 1px #ff873d55,0 0 20px #ff650027,inset 0 1px 0 #ffffff14;transform:translateY(-1px)}
+#muscles .recovery-item .progress{height:9px;box-shadow:inset 0 1px 3px #0009}
+#muscles .recovery-item .progress span{box-shadow:0 0 10px currentColor;min-width:2px}
+@media(prefers-reduced-motion:reduce){.stat,.gauge,#muscles .muscle-zone,#muscles .recovery-item{transition:none}}
