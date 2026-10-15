@@ -393,3 +393,15 @@ body{background:radial-gradient(ellipse at 8% 0%,rgba(255,106,0,.105),transparen
 .home-workout-panel .workout-all-toggle .toggle-chevron{margin-inline-start:auto;font-size:20px}
 .home-workout-panel .workout-select-label{display:none!important}
 .home-workout-panel .workout-all-select{position:absolute!important;width:1px!important;height:1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;opacity:0!important;pointer-events:none!important}
+
+/* FINAL mobile workout picker: no oversized/white controls; real live results */
+.nav .nav-dumbbell{display:grid!important;visibility:visible!important;opacity:1!important;place-items:center;width:32px;height:30px;color:#ff7a18!important;flex:0 0 32px}
+.nav .nav-dumbbell svg{display:block!important;visibility:visible!important;opacity:1!important;width:32px!important;height:24px!important;overflow:visible}
+.home-workout-panel .workout-title:before{content:none!important;display:none!important}
+.home-workout-panel #workoutSearchResults{display:none;position:relative;z-index:20;width:100%;box-sizing:border-box;grid-template-columns:1fr;gap:8px;max-height:360px;overflow-y:auto;margin:8px 0 12px;padding:8px;border:1px solid #45404a;border-radius:16px;background:#111419;box-shadow:0 10px 25px #0005}
+.home-workout-panel #workoutSearchResults.is-open{display:grid!important}
+.home-workout-panel .workout-all-toggle{display:flex!important;position:relative;align-items:center;justify-content:space-between;width:100%;min-height:46px;margin:8px 0 14px;padding:10px 14px;border:1px solid #4a382b!important;border-radius:12px!important;background:#171a1f!important;color:#ffad70!important;font-size:15px!important;box-shadow:none!important;line-height:1.4}
+.home-workout-panel .workout-all-toggle svg{display:none!important}
+.home-workout-panel .workout-all-toggle .toggle-chevron{margin-inline-start:0!important}
+.home-workout-panel .workout-search-results .workout-result{background:#20252b!important;color:#f8f8f8!important;border:1px solid #383f47!important}
+.home-workout-panel .workout-search-results .workout-result:active,.home-workout-panel .workout-search-results .workout-result.selected{background:#342217!important;border-color:#ff7a18!important}

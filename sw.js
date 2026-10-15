@@ -1,9 +1,9 @@
 /* FitBros offline shell cache. Keep this file at the site root. */
 const CACHE_PREFIX = 'fitbros-shell-';
-const CACHE_NAME = CACHE_PREFIX + '20261015-offline-v1';
+const CACHE_NAME = CACHE_PREFIX + '20261015-live-search-fix2';
 const APP_SHELL = [
-  './', './index.html', './style.css?v=20261012ai', './app.js?v=20261013history',
-  './supabase-config.js', './touch-feedback.js?v=20261012ai', './settings.html',
+  './', './index.html', './style.css?v=20261015live-search-fix2', './app.js?v=20261015live-search-fix2',
+  './supabase-config.js', './touch-feedback.js?v=20261015live-search-fix2', './settings.html',
   './settings.js', './foods.json', './icon.png', './background.png', './manifest.webmanifest'
 ];
 self.addEventListener('install', event => {
