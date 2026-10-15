@@ -444,3 +444,25 @@ function renderAll(){renderDailyHistory();let w=ownLogs(current,'water').filter(
 document.querySelectorAll('[data-activity-filter]').forEach(b=>b.onclick=()=>{activityFilter=b.dataset.activityFilter;document.querySelectorAll('[data-activity-filter]').forEach(x=>x.classList.toggle('active',x.dataset.activityFilter===activityFilter));renderAll()});
 
 window.addEventListener('pageshow',()=>{if(!$('app').classList.contains('hidden'))refreshDashboard()});document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!$('app').classList.contains('hidden'))refreshDashboard()});
+
+// Reliable activity launcher: direct handler also works inside embedded/mobile webviews.
+window.fitbrosShowActivityPanel = function(id, btn){
+  const section=document.getElementById(id);
+  if(!section || !section.classList.contains('activity-subsection')) return;
+  document.querySelectorAll('.activity-subsection').forEach(el=>el.classList.toggle('hidden',el.id!==id));
+  document.querySelectorAll('.activity-launch').forEach(el=>{
+    const active=el===btn || el.dataset.activityPanel===id;
+    el.classList.toggle('active',active);
+    el.setAttribute('aria-selected',String(active));
+  });
+  if(id==='gpsSection') setTimeout(()=>{
+    window.dispatchEvent(new Event('resize'));
+    if(window.gpsMap && typeof window.gpsMap.invalidateSize==='function') window.gpsMap.invalidateSize();
+  },120);
+  requestAnimationFrame(()=>{
+    const topbar=document.querySelector('#app .topbar');
+    const offset=(topbar?.getBoundingClientRect().height||0)+10;
+    const y=section.getBoundingClientRect().top+window.scrollY-offset;
+    window.scrollTo({top:Math.max(0,y),behavior:'smooth'});
+  });
+};
