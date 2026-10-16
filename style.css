@@ -749,5 +749,11 @@ body.gps-live-mode #gpsTrackerPanel > p.muted.tiny:last-child {
   }
 }
 
-/* Stable mobile activity history: filters must never resize/zoom the viewport. */
-html,body{max-width:100%;overflow-x:hidden}#app,.page,#activity,.activity-subsection,#activityLog,#activityHistoryLog{min-width:0;max-width:100%;box-sizing:border-box}#activityLog .log-item,#activityHistoryLog .log-item{min-width:0;max-width:100%;overflow-wrap:anywhere;word-break:normal}#activityLog .log-item>* ,#activityHistoryLog .log-item>*{min-width:0;max-width:100%}#activityLog .log-item strong,#activityHistoryLog .log-item strong,#activityLog .log-item small,#activityHistoryLog .log-item small{overflow-wrap:anywhere}#historySection .chips{position:static;top:auto;flex-wrap:wrap}#historySection .chip{flex:0 0 auto;min-height:40px}#activity.page:not(.hidden),#activityHistory.page:not(.hidden){transform:none}
+/* FitBros responsive history hardening: changing activity filters must not resize the viewport. */
+html,body,#app,.wrap,.page,#activity,#activityHistory,#activityLog,#activityHistoryLog{max-width:100%;min-width:0;box-sizing:border-box}
+html,body{overflow-x:hidden}
+#activityLog .log-item,#activityHistoryLog .log-item{min-width:0;max-width:100%;overflow-wrap:anywhere;word-break:normal}
+#activityLog .log-item>*,#activityHistoryLog .log-item>*{min-width:0;max-width:100%}
+#activityLog .log-item .log-right,#activityHistoryLog .log-item .log-right{white-space:normal;overflow-wrap:anywhere}
+#activityLog .log-item small,#activityHistoryLog .log-item small{overflow-wrap:anywhere}
+#activityHistory .chips,#historySection .chips{width:100%;max-width:100%;box-sizing:border-box}
