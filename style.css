@@ -766,3 +766,16 @@ html,body{overflow-x:hidden}
 
 /* Muscle training ratings */
 .muscle-rating-intro{margin:14px 0 18px;padding:14px;border:1px solid rgba(255,135,61,.28);border-radius:16px;background:linear-gradient(145deg,rgba(255,106,0,.08),rgba(30,36,43,.85))}.muscle-rating-intro h3{margin:0 0 8px}.muscle-ratings-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}.muscle-rating-card{min-width:0;padding:11px;border:1px solid #30363d;border-radius:13px;background:#11161c}.muscle-rating-top{display:flex;justify-content:space-between;align-items:center;gap:7px}.muscle-rating-top b{font-size:13px;line-height:1.45}.muscle-rating-top strong{font-size:20px;color:#ff9a52;white-space:nowrap}.muscle-rating-top strong small{font-size:10px;color:#aeb5bd}.muscle-rating-track{height:7px;background:#30343b;border-radius:99px;overflow:hidden;margin:9px 0 6px}.muscle-rating-track span{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#ff6a00,#ffd166);transition:width .35s}.muscle-rating-card>small{font-size:11px;color:#aeb5bd}.muscle-rating-compare{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.muscle-rating-person{min-width:0}.muscle-rating-person h3{margin-top:0}.muscle-rating-person .muscle-ratings-grid{grid-template-columns:1fr}.muscle-rating-person .muscle-rating-card{padding:9px}@media(max-width:520px){.muscle-rating-compare{grid-template-columns:1fr}.muscle-rating-person .muscle-ratings-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.muscle-rating-top b{font-size:12px}}
+
+/* FitBros XP polish: keep the reward icon contained and rank labels tidy. */
+.points-bar{grid-template-columns:minmax(0,1fr) minmax(0,1fr);overflow:hidden;box-sizing:border-box;width:100%;}
+.points-badge{min-width:0;overflow:hidden;}
+.points-star{flex:0 0 38px;width:38px;height:38px;box-sizing:border-box;font-size:23px;line-height:1;}
+.points-badge>div,.rank-info>div{min-width:0;}
+.points-badge strong,.rank-info strong,.rank-info small{overflow-wrap:anywhere;}
+.person-name-row{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+.mini-rank-badge{display:inline-flex;align-items:center;gap:4px;padding:5px 9px;border:1px solid #76502d;border-radius:999px;background:linear-gradient(135deg,#2b2119,#20252a);color:#ffd28a;font-size:12px;font-weight:800;white-space:nowrap;}
+.challenge-reward{border:1px solid #343b43;box-shadow:0 5px 18px #0002;transition:transform .18s,border-color .18s;}
+.challenge-reward:has(.challenge-submetric .progress span[style*="100%"]){border-color:#477e62;}
+.challenge-xp{box-shadow:0 3px 10px #0003;}
+@media(max-width:430px){.points-bar{gap:7px;padding:9px}.points-star{flex-basis:34px;width:34px;height:34px}.rank-info>span{font-size:22px}.mini-rank-badge{font-size:10px;padding:4px 7px}}
