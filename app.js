@@ -167,7 +167,7 @@ function gpsPause(){
  }
  gpsRender();
 }
-function gpsFinish(){if(!gps.active)return;const defaultTitle=gps.kind==='run'?'جري GPS':'مشي GPS';const chosenTitle=prompt('سمّي النشاط قبل الحفظ:',defaultTitle);if(chosenTitle===null)return;const activityTitle=chosenTitle.trim()||defaultTitle;const elapsed=gpsElapsedMs(),km=+gps.km.toFixed(3),min=+(elapsed/60000).toFixed(2),kind=gps.kind;if(gps.watchId!==null&&navigator.geolocation)navigator.geolocation.clearWatch(gps.watchId);clearInterval(gps.timer);if(gps.pollTimer)clearInterval(gps.pollTimer);gps.pollTimer=null;const points=gps.points.slice();gps.active=false;gps.paused=false;document.body.classList.remove('gps-live-mode');gps.watchId=null;gps.timer=null;if(elapsed<1000){gpsStatus('التسجيل قصير جدًا؛ لم يتم حفظه.');gpsRender();return}const item={type:kind,who:current,jointActivity:jointActivityEnabled('jointGpsToggle'),title:activityTitle,source:'gps',km,min:+min.toFixed(2),pace:km>0?+(min/km).toFixed(2):null,steps:kind==='walk'?Math.round(km*1300):undefined,date:today(),createdAt:Date.now(),durationMs:Math.round(elapsed),trackPoints:points};addLog(item);persistRemote().catch(e=>{console.error('FitBros GPS activity sync failed:',e);gpsStatus('تم حفظ النشاط على الجهاز، لكن تعذرت مزامنته مع السيرفر. تحقق من الاتصال ثم أعد فتح التطبيق.');});if(kind==='run')addPoints(current,Math.max(1,Math.round(km*5)));else addPoints(current,Math.max(1,Math.round((item.steps||0)/1000)));try{localStorage.setItem('fitbros_gps_tracks_v1',JSON.stringify([...(JSON.parse(localStorage.getItem('fitbros_gps_tracks_v1')||'[]')),{...item,points,id:Date.now()}].slice(-100)))}catch(e){console.warn('Could not store GPS track locally',e)}gpsStatus(`تم حفظ ${kind==='run'?'الجري':'المشي'}: ${km.toFixed(2)} كم · ${gpsFmtTime(elapsed)} · ${gpsFmtPace(km,elapsed)} دقيقة/كم${km<0.03?' (المسافة غير متاحة بسبب إشارة GPS)':''}`);gpsRender();showFoodToast('✓ تم حفظ نتيجة النشاط في السجل');showSuccessPulse('تم حفظ نشاطك',`${km.toFixed(2)} كم · ${gpsFmtTime(elapsed)}`)}
+function gpsFinish(){if(!gps.active)return;const defaultTitle=gps.kind==='run'?'جري GPS':'مشي GPS';const chosenTitle=prompt('سمّي النشاط قبل الحفظ:',defaultTitle);if(chosenTitle===null)return;const activityTitle=chosenTitle.trim()||defaultTitle;const elapsed=gpsElapsedMs(),km=+gps.km.toFixed(3),min=+(elapsed/60000).toFixed(2),kind=gps.kind;if(gps.watchId!==null&&navigator.geolocation)navigator.geolocation.clearWatch(gps.watchId);clearInterval(gps.timer);if(gps.pollTimer)clearInterval(gps.pollTimer);gps.pollTimer=null;const points=gps.points.slice();gps.active=false;gps.paused=false;document.body.classList.remove('gps-live-mode');gps.watchId=null;gps.timer=null;if(elapsed<1000){gpsStatus('التسجيل قصير جدًا؛ لم يتم حفظه.');gpsRender();return}const item={type:kind,who:current,jointActivity:jointActivityEnabled('jointGpsToggle'),title:activityTitle,source:'gps',km,min:+min.toFixed(2),pace:km>0?+(min/km).toFixed(2):null,steps:kind==='walk'?Math.round(km*1300):undefined,date:today(),createdAt:Date.now(),durationMs:Math.round(elapsed),trackPoints:points};addLog(item);persistRemote().catch(e=>{console.error('FitBros GPS activity sync failed:',e);gpsStatus('تم حفظ النشاط على الجهاز، لكن تعذرت مزامنته مع السيرفر. تحقق من الاتصال ثم أعد فتح التطبيق.');});if(kind==='run')addPoints(current,Math.max(1,Math.round(km*5)));else addPoints(current,Math.max(1,Math.round((item.steps||0)/1000)));try{localStorage.setItem('fitbros_gps_tracks_v1',JSON.stringify([...(JSON.parse(localStorage.getItem('fitbros_gps_tracks_v1')||'[]')),{...item,points,id:Date.now()}].slice(-100)))}catch(e){console.warn('Could not store GPS track locally',e)}gpsStatus(`تم حفظ ${kind==='run'?'الجري':'المشي'}: ${km.toFixed(2)} كم · ${gpsFmtTime(elapsed)} · ${gpsFmtPace(km,elapsed)} دقيقة/كم${km<0.03?' (المسافة غير متاحة بسبب إشارة GPS)':''}`);gpsRender();showFoodToast('✓ تم حفظ نتيجة النشاط في السجل');showSuccessPulse('تم حفظ نشاطك',`${km.toFixed(2)} كم · ${gpsFmtTime(elapsed)}`);setTimeout(()=>{if(document.getElementById('routesSection')&&!document.getElementById('routesSection').classList.contains('hidden'))renderSavedRoutes()},250)}
 if($('gpsStart'))$('gpsStart').addEventListener('click',gpsStart);if($('gpsDiscard'))$('gpsDiscard').addEventListener('click',gpsDiscard);if($('gpsPause'))$('gpsPause').addEventListener('click',gpsPause);if($('gpsFinish'))$('gpsFinish').addEventListener('click',gpsFinish);if($('gpsActivityType'))$('gpsActivityType').addEventListener('change',()=>{if(!gps.active){gps.kind=$('gpsActivityType').value;gpsRender()}});window.addEventListener('pagehide',()=>{if(gps.active&&!gps.paused){gps.elapsedBeforePause=gpsElapsedMs();gps.paused=true;if(gps.watchId!==null)navigator.geolocation.clearWatch(gps.watchId);clearInterval(gps.timer);try{localStorage.setItem('fitbros_gps_incomplete_v1',JSON.stringify({kind:gps.kind,km:gps.km,elapsedMs:gps.elapsedBeforePause,points:gps.points,savedAt:Date.now()}))}catch(e){}}});gpsRender();
 $('saveRun').onclick=()=>{let km=+$('runKm').value,min=+$('runMin').value;if(!(km>0)||!(min>0)){alert('اكتب المسافة والمدة بشكل صحيح.');return}const speed=km/(min/60);if(speed>30){alert('المسافة والمدة مش متوافقين: السرعة المحسوبة أعلى من 30 كم/ساعة. راجع الإدخال قبل الحفظ؛ 60 كم في 6 دقائق غالبًا خطأ في المسافة أو المدة.');return}addLog({type:'run',who:current,jointActivity:jointActivityEnabled('jointRunToggle'),title:'جري',km,min,pace:Math.round((min/km)*100)/100,date:$('runDate').value||today(),createdAt:Date.now()});addPoints(current,Math.round(km*5));$('runKm').value='';$('runMin').value='';$('runPace').value=''};
 function updateWalkFields(){const mode=$('walkMode')?.value||'time';['time','distance','steps'].forEach(k=>{const el=$('walk'+({time:'Time',distance:'Distance',steps:'Steps'}[k])+'Field');if(el)el.classList.toggle('hidden',mode!==k)})}if($('walkMode')){$('walkMode').addEventListener('change',updateWalkFields);updateWalkFields()}$('saveExercise').onclick=()=>{const mode=$('walkMode').value,date=$('exerciseDate').value||today();let min=0,km=0,steps=0;if(mode==='time'){min=+$('walkMin').value;if(!(min>0)){alert('اكتب مدة المشي.');return}km=min*0.075;steps=Math.round(km*1300)}else if(mode==='distance'){km=+$('walkKm').value;if(!(km>0)){alert('اكتب مسافة صحيحة.');return}min=Math.round(km/4.5*60);steps=Math.round(km*1300)}else{steps=+$('walkSteps').value;if(!(steps>0)){alert('اكتب عدد خطوات صحيح.');return}km=steps/1300;min=Math.round(km/4.5*60)}addLog({type:'walk',who:current,jointActivity:jointActivityEnabled('jointWalkToggle'),title:'مشي',mode,min,km:+km.toFixed(2),steps,pace:km>0?+(min/km).toFixed(2):null,date,createdAt:Date.now()});addPoints(current,Math.max(1,Math.round(steps/1000)));['walkMin','walkKm','walkSteps'].forEach(id=>{if($(id))$(id).value=''});showFoodToast('✓ تم تسجيل المشي');showSuccessPulse('اتسجل نشاطك','كل خطوة بتفرق 👟');};
@@ -455,15 +455,51 @@ window.addEventListener('pageshow',()=>{if(!$('app').classList.contains('hidden'
 // Saved route explorer: draws actual recorded GPS points, not illustrative lines.
 let savedRoutesMap=null;
 function renderSavedRoutes(){
- const mapEl=document.getElementById('savedRoutesMap');if(!mapEl)return;if(!window.L){const st=document.getElementById('savedRoutesStatus');if(st)st.textContent='تعذر تحميل مكتبة الخريطة. تأكد من اتصال الإنترنت ثم أعد فتح الصفحة.';return;}
- if(!savedRoutesMap){savedRoutesMap=L.map(mapEl,{zoomControl:true}).setView([30.0444,31.2357],6);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap',errorTileUrl:''}).addTo(savedRoutesMap);savedRoutesMap.on('tileerror',()=>{const st=document.getElementById('savedRoutesStatus');if(st&&!st.dataset.tileError){st.dataset.tileError='1';st.textContent='الخريطة تحتاج اتصال إنترنت لتحميل تفاصيل الشوارع؛ المسارات المحفوظة ستظهر فوقها عند توفر الاتصال.'}})}
+ const mapEl=document.getElementById('savedRoutesMap');if(!mapEl)return;
+ const status=document.getElementById('savedRoutesStatus');
+ if(!window.L){if(status)status.textContent='تعذر تحميل مكتبة الخريطة. تأكد من اتصال الإنترنت ثم أعد فتح الصفحة.';return;}
+ if(!savedRoutesMap){
+  savedRoutesMap=L.map(mapEl,{zoomControl:true}).setView([31.2565,32.2841],12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(savedRoutesMap);
+  savedRoutesMap.on('tileerror',()=>{if(status)status.textContent='تعذر تحميل خلفية الشوارع حاليًا؛ تحقق من الإنترنت. خطوط المسارات تظهر عند توفر نقاط GPS.'});
+ }
+ // Resize after the hidden training subsection becomes visible.
+ [80,250,650].forEach(ms=>setTimeout(()=>{if(savedRoutesMap){savedRoutesMap.invalidateSize(true);}},ms));
  savedRoutesMap.eachLayer(layer=>{if(layer instanceof L.Polyline && !(layer instanceof L.TileLayer))savedRoutesMap.removeLayer(layer)});
- const entries=(db.logs||[]).filter(x=>['run','walk'].includes(x.type)&&Array.isArray(x.trackPoints)&&x.trackPoints.length>1);const bounds=[];
- entries.forEach(x=>{const coords=x.trackPoints.filter(p=>Number.isFinite(+p.lat)&&Number.isFinite(+(p.lon??p.lng))).map(p=>[+p.lat,+(p.lon??p.lng)]);if(coords.length<2)return;const mine=x.who===current;const color=mine?'#ff4545':'#24c875';const line=L.polyline(coords,{color,weight:5,opacity:.92,lineCap:'round'}).addTo(savedRoutesMap);line.bindPopup(`<b>${String(x.title|| (x.type==='run'?'جري':'مشي')).replace(/[<>]/g,'')}</b><br>${mine?'مساراتي':'مسارات زياد'} · ${(+x.km||0).toFixed(2)} كم<br>${String(x.date||'')}`);bounds.push(...coords)});
- const status=document.getElementById('savedRoutesStatus');if(status)status.textContent=entries.length?`تم عرض ${entries.length} مسار GPS محفوظ. المسارات القديمة التي لا تحتوي على نقاط GPS لا يمكن رسمها على الخريطة.`:'لسه مفيش مسارات GPS محفوظة. سجّل نشاطًا جديدًا باستخدام GPS وسيظهر هنا.';
- const list=document.getElementById('savedRoutesList');if(list)list.innerHTML=entries.slice().sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)).map(x=>`<div class="saved-route-item"><strong>${String(x.title|| (x.type==='run'?'جري GPS':'مشي GPS')).replace(/[<>]/g,'')}</strong><small>${x.who===current?'🔴 مساراتي':'🟢 مسارات زياد'} · ${(+x.km||0).toFixed(2)} كم · ${x.min||'—'} دقيقة · ${String(x.date||'')}</small></div>`).join('');
- if(bounds.length)savedRoutesMap.fitBounds(L.latLngBounds(bounds).pad(.12));[100,350,800].forEach(ms=>setTimeout(()=>{if(savedRoutesMap){savedRoutesMap.invalidateSize(true);if(bounds.length)savedRoutesMap.fitBounds(L.latLngBounds(bounds).pad(.12))}},ms));
+ // Merge synced activity logs with local GPS cache, since local cache can survive a delayed sync.
+ let localTracks=[];try{localTracks=JSON.parse(localStorage.getItem('fitbros_gps_tracks_v1')||'[]')}catch(e){}
+ const all=[...(Array.isArray(db.logs)?db.logs:[]),...(Array.isArray(localTracks)?localTracks:[])];
+ const seen=new Set(), entries=[];
+ all.forEach(x=>{
+  if(!x||!['run','walk','running','walking'].includes(String(x.type||'').toLowerCase()))return;
+  const pts=Array.isArray(x.trackPoints)?x.trackPoints:(Array.isArray(x.points)?x.points:[]);
+  const coords=pts.map(p=>({lat:Number(p.lat),lon:Number(p.lon??p.lng)})).filter(p=>Number.isFinite(p.lat)&&Number.isFinite(p.lon)&&Math.abs(p.lat)<=90&&Math.abs(p.lon)<=180);
+  if(coords.length<2)return;
+  const key=String(x.id||x.createdAt||'')+'|'+String(x.who||x.user||'')+'|'+String(x.date||'')+'|'+coords.length;
+  if(seen.has(key))return;seen.add(key);
+  entries.push({...x,trackPoints:coords,type:['running','run'].includes(String(x.type).toLowerCase())?'run':'walk'});
+ });
+ const me=String(current??'').trim().toLowerCase();
+ const bounds=[];
+ entries.forEach(x=>{
+  const owner=String(x.who??x.user??x.userId??'').trim().toLowerCase();
+  const mine=!!me && owner===me;
+  const color=mine?'#ff4545':'#24c875';
+  const coords=x.trackPoints.map(p=>[p.lat,p.lon]);
+  const line=L.polyline(coords,{color,weight:6,opacity:.96,lineCap:'round',lineJoin:'round'}).addTo(savedRoutesMap);
+  const title=String(x.title||(x.type==='run'?'جري GPS':'مشي GPS')).replace(/[<>]/g,'');
+  line.bindPopup(`<b>${title}</b><br>${mine?'🔴 مساراتي':'🟢 مسارات زياد'} · ${(Number(x.km)||0).toFixed(2)} كم<br>${String(x.date||'')}`);
+  bounds.push(...coords);
+ });
+ if(status)status.textContent=entries.length?`الخريطة تعرض ${entries.length} مسارًا محفوظًا. الأحمر: مساراتك · الأخضر: مسارات زياد.`:'لا توجد مسارات GPS محفوظة بنقاط كافية حتى الآن. ابدأ التسجيل من زر GPS واحفظ النشاط ليظهر هنا.';
+ const list=document.getElementById('savedRoutesList');
+ if(list)list.innerHTML=entries.slice().sort((a,b)=>(Number(b.createdAt)||0)-(Number(a.createdAt)||0)).map(x=>{
+  const owner=String(x.who??x.user??x.userId??'').trim().toLowerCase(),mine=!!me&&owner===me;
+  return `<div class="saved-route-item"><strong>${String(x.title||(x.type==='run'?'جري GPS':'مشي GPS')).replace(/[<>]/g,'')}</strong><small>${mine?'🔴 مساراتي':'🟢 مسارات زياد'} · ${(Number(x.km)||0).toFixed(2)} كم · ${x.min||'—'} دقيقة · ${String(x.date||'')}</small></div>`;
+ }).join('');
+ if(bounds.length){try{savedRoutesMap.fitBounds(L.latLngBounds(bounds).pad(.12),{maxZoom:16})}catch(e){}}
 }
+
 // GPS and saved routes stay inside the existing Training tab; no separate bottom-navigation page.
 
 window.fitbrosShowActivityPanel = function(id, btn){
@@ -478,7 +514,7 @@ window.fitbrosShowActivityPanel = function(id, btn){
   if(id==='routesSection') {setTimeout(renderSavedRoutes,120);}
   if(id==='gpsSection') {setTimeout(()=>{
     window.dispatchEvent(new Event('resize'));
-    if(window.gpsMap && typeof window.gpsMap.invalidateSize==='function') window.gpsMap.invalidateSize();
+    if(gps.map && typeof gps.map.invalidateSize==='function') gps.map.invalidateSize(true);
   },120);}
   requestAnimationFrame(()=>{
     const topbar=document.querySelector('#app .topbar');
