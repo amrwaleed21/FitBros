@@ -788,3 +788,9 @@ html,body{overflow-x:hidden}
 .points-cta:active{transform:scale(.985);filter:brightness(1.12);}
 .challenge-reward{overflow:hidden;box-sizing:border-box;}
 .challenge-xp{max-width:calc(100% - 18px);}
+
+/* XP ledger v5: show each activity's calculated points and keep the rank card clear of the store promo. */
+.activity-xp{display:inline-flex;align-items:center;gap:5px;max-width:100%;width:max-content;margin:0 0 8px;padding:5px 9px;border:1px solid rgba(255,190,87,.38);border-radius:999px;background:linear-gradient(120deg,rgba(89,55,18,.78),rgba(38,35,28,.92));color:#ffd477;font-size:12px;font-weight:900;line-height:1.2;direction:ltr;white-space:nowrap;box-shadow:0 3px 12px rgba(0,0,0,.18);}
+.points-bar{margin-bottom:20px;transform:translateY(-3px);}
+.cementfit-promo{margin-top:8px;}
+@media(max-width:430px){.activity-xp{font-size:11px;padding:5px 8px;margin-bottom:6px;}}
