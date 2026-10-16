@@ -623,3 +623,128 @@ body.gps-live-mode #gpsTrackerPanel #gpsDiscard{background:transparent!important
  body.gps-live-mode #gpsTrackerPanel .gps-actions{gap:5px!important}
  body.gps-live-mode #gpsTrackerPanel .gps-actions button{min-height:40px!important;max-height:46px!important}
 }
+
+
+/* v8: fit every GPS recording control inside the visible phone viewport */
+html:has(body.gps-live-mode),
+body.gps-live-mode,
+body.gps-live-mode #app,
+body.gps-live-mode #app main.wrap,
+body.gps-live-mode #activity,
+body.gps-live-mode #gpsSection,
+body.gps-live-mode #gpsTrackerPanel {
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: 100% !important;
+  overflow: hidden !important;
+  box-sizing: border-box !important;
+}
+body.gps-live-mode #activity {
+  height: 100vh !important;
+  height: 100dvh !important;
+  padding-top: max(env(safe-area-inset-top), 3px) !important;
+  padding-bottom: max(env(safe-area-inset-bottom), 3px) !important;
+}
+body.gps-live-mode #gpsTrackerPanel {
+  display: grid !important;
+  grid-template-rows: auto minmax(70px, 22dvh) minmax(0, 1fr) auto auto !important;
+  align-content: stretch !important;
+  gap: clamp(2px, .45dvh, 5px) !important;
+  padding: clamp(5px, .8dvh, 9px) clamp(12px, 3.5vw, 20px) !important;
+}
+body.gps-live-mode #gpsTrackerPanel:before {
+  grid-row: 1 !important;
+  margin: 0 !important;
+  line-height: 1 !important;
+}
+body.gps-live-mode #gpsTrackerPanel #gpsMap {
+  grid-row: 2 !important;
+  height: 100% !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  flex: none !important;
+  margin: 0 !important;
+}
+body.gps-live-mode #gpsTrackerPanel .gps-stats {
+  grid-row: 3 !important;
+  min-height: 0 !important;
+  overflow: hidden !important;
+  grid-template-columns: 1fr 1fr !important;
+  grid-template-rows: 1fr 1fr !important;
+  align-content: stretch !important;
+  justify-content: stretch !important;
+  gap: 0 6px !important;
+  padding: 0 !important;
+}
+body.gps-live-mode #gpsTrackerPanel .gps-stats > div {
+  overflow: hidden !important;
+  padding: 0 !important;
+  justify-content: center !important;
+}
+body.gps-live-mode #gpsTrackerPanel #gpsDistance {
+  font-size: clamp(2rem, 8.5dvh, 4rem) !important;
+  line-height: .98 !important;
+}
+body.gps-live-mode #gpsTrackerPanel #gpsElapsed {
+  font-size: clamp(1.7rem, 6.8dvh, 3.4rem) !important;
+  line-height: 1 !important;
+}
+body.gps-live-mode #gpsTrackerPanel #gpsSpeed,
+body.gps-live-mode #gpsTrackerPanel #gpsPace {
+  font-size: clamp(1rem, 3.5dvh, 1.8rem) !important;
+  line-height: 1.05 !important;
+}
+body.gps-live-mode #gpsTrackerPanel .gps-stats small {
+  font-size: clamp(.65rem, 1.6dvh, .86rem) !important;
+}
+body.gps-live-mode #gpsStatus {
+  grid-row: 4 !important;
+  max-height: 2.2em !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  font-size: clamp(.62rem, 1.45dvh, .78rem) !important;
+  line-height: 1.1 !important;
+}
+body.gps-live-mode #gpsTrackerPanel .gps-actions {
+  grid-row: 5 !important;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  grid-template-rows: repeat(2, minmax(38px, 5.7dvh)) !important;
+  gap: clamp(4px, 1vw, 8px) !important;
+  padding: 0 0 max(env(safe-area-inset-bottom), 2px) !important;
+  margin: 0 !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: hidden !important;
+}
+body.gps-live-mode #gpsTrackerPanel .gps-actions button {
+  min-height: 0 !important;
+  height: 100% !important;
+  max-height: none !important;
+  padding: 3px 4px !important;
+  font-size: clamp(.72rem, 1.9dvh, .92rem) !important;
+  line-height: 1.05 !important;
+  border-radius: 12px !important;
+  white-space: normal !important;
+}
+body.gps-live-mode #gpsTrackerPanel #gpsStart {
+  grid-column: 1 / -1 !important;
+}
+body.gps-live-mode #gpsTrackerPanel > p.muted.tiny:last-child {
+  display: none !important;
+}
+@media (max-height: 620px) {
+  body.gps-live-mode #gpsTrackerPanel {
+    grid-template-rows: auto minmax(58px, 18dvh) minmax(0, 1fr) auto auto !important;
+    gap: 2px !important;
+  }
+  body.gps-live-mode #gpsTrackerPanel .gps-actions {
+    grid-template-rows: repeat(2, minmax(32px, 5.2dvh)) !important;
+  }
+  body.gps-live-mode #gpsTrackerPanel #gpsDistance {
+    font-size: clamp(1.7rem, 7dvh, 3rem) !important;
+  }
+  body.gps-live-mode #gpsTrackerPanel #gpsElapsed {
+    font-size: clamp(1.5rem, 5.8dvh, 2.7rem) !important;
+  }
+}
