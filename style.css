@@ -779,3 +779,12 @@ html,body{overflow-x:hidden}
 .challenge-reward:has(.challenge-submetric .progress span[style*="100%"]){border-color:#477e62;}
 .challenge-xp{box-shadow:0 3px 10px #0003;}
 @media(max-width:430px){.points-bar{gap:7px;padding:9px}.points-star{flex-basis:34px;width:34px;height:34px}.rank-info>span{font-size:22px}.mini-rank-badge{font-size:10px;padding:4px 7px}}
+
+/* XP v4: compact, contained rank badge and a reliably tappable challenge shortcut. */
+.points-bar{position:relative;isolation:isolate;grid-template-columns:minmax(0,1fr) minmax(0,1fr);overflow:hidden;box-sizing:border-box;width:100%;}
+.points-badge,.rank-info{min-width:0;max-width:100%;box-sizing:border-box;}
+.points-star{flex:0 0 36px;width:36px;height:36px;min-width:36px;max-width:36px;overflow:hidden;border-radius:11px;line-height:1;box-sizing:border-box;}
+.points-cta{position:relative;z-index:2;display:block;width:100%;min-height:42px;box-sizing:border-box;cursor:pointer;pointer-events:auto;touch-action:manipulation;}
+.points-cta:active{transform:scale(.985);filter:brightness(1.12);}
+.challenge-reward{overflow:hidden;box-sizing:border-box;}
+.challenge-xp{max-width:calc(100% - 18px);}

@@ -1,8 +1,8 @@
 /* FitBros offline shell cache. Keep this file at the site root. */
 const CACHE_PREFIX = 'fitbros-shell-';
-const CACHE_NAME = CACHE_PREFIX + '20261016-daily-challenge-muscle-selection-v3';
+const CACHE_NAME = CACHE_PREFIX + '20261017-xp-reward-ledger-v4';
 const APP_SHELL = [
-  './', './index.html', './cementfit.html', './cementfit-product.html', './style.css?v=20261016-daily-challenge-muscle-selection-v3', './app.js?v=20261016-daily-challenge-muscle-selection-v3',
+  './', './index.html', './cementfit.html', './cementfit-product.html', './style.css?v=20261017-xp-reward-ledger-v4', './app.js?v=20261017-xp-reward-ledger-v4',
   './supabase-config.js', './touch-feedback.js?v=20261015live-search-fix2', './settings.html',
   './settings.js', './foods.json', './icon.png', './cementfit-logo.png', './background.png', './manifest.webmanifest'
 ];
