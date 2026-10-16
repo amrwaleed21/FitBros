@@ -518,69 +518,108 @@ body.gps-live-mode #gpsTrackerPanel .gps-actions{position:sticky;bottom:0;paddin
 .route-map-record{z-index:700}
 
 
-/* v6: fit the complete live GPS screen inside the device viewport — no scrolling */
+
+/* Stable GPS recording screen: responsive single viewport, no overlapping controls */
+body.gps-live-mode{overflow:hidden!important}
+body.gps-live-mode #app .topbar,
+body.gps-live-mode #app .nav,
+body.gps-live-mode #app .welcome,
+body.gps-live-mode #app main.wrap>section.page:not(#activity){display:none!important}
+body.gps-live-mode #activity>.cementfit-promo,
+body.gps-live-mode #activity>.section-title,
+body.gps-live-mode #activity>.activity-launcher,
+body.gps-live-mode #activity>#workoutSection,
+body.gps-live-mode #activity>#runSection,
+body.gps-live-mode #activity>#walkSection,
+body.gps-live-mode #activity>#historySection,
+body.gps-live-mode #activity>#routesSection{display:none!important}
+body.gps-live-mode #app main.wrap{padding:0!important;margin:0!important;max-width:none!important}
 body.gps-live-mode #activity{
-  height:100vh!important;height:100dvh!important;
-  overflow:hidden!important;
-  padding-top:env(safe-area-inset-top)!important;
-  padding-bottom:env(safe-area-inset-bottom)!important;
-  box-sizing:border-box!important;
+ position:fixed!important;inset:0!important;width:100%!important;
+ height:100vh!important;height:100dvh!important;z-index:99990!important;
+ overflow:hidden!important;box-sizing:border-box!important;
+ background:#111!important;padding:env(safe-area-inset-top) 0 env(safe-area-inset-bottom)!important;
 }
-body.gps-live-mode #gpsSection{
-  height:100%!important;min-height:0!important;overflow:hidden!important;
-}
+body.gps-live-mode #gpsSection{display:block!important;height:100%!important;min-height:0!important;overflow:hidden!important}
 body.gps-live-mode #gpsTrackerPanel{
-  height:100%!important;min-height:0!important;max-height:100%!important;
-  box-sizing:border-box!important;overflow:hidden!important;
-  padding:clamp(8px,1.6vh,16px) clamp(14px,4vw,22px) calc(8px + env(safe-area-inset-bottom))!important;
-  gap:clamp(2px,0.7vh,7px)!important;
+ display:flex!important;flex-direction:column!important;align-items:stretch!important;
+ width:100%!important;height:100%!important;min-height:0!important;max-height:100%!important;
+ overflow:hidden!important;box-sizing:border-box!important;margin:0!important;
+ border:0!important;border-radius:0!important;background:#111!important;box-shadow:none!important;
+ padding:clamp(7px,1.2vh,13px) clamp(14px,4vw,22px) clamp(8px,1vh,12px)!important;
+ gap:clamp(3px,.6vh,7px)!important;
 }
-body.gps-live-mode #gpsTrackerPanel:after{display:none!important;content:none!important}
-body.gps-live-mode #gpsTrackerPanel:before{font-size:clamp(.72rem,2.5vh,.9rem)!important;line-height:1.1!important}
+body.gps-live-mode #gpsTrackerPanel>h3,
+body.gps-live-mode #gpsTrackerPanel>p.muted:not(#gpsStatus),
+body.gps-live-mode #gpsTrackerPanel>.gps-map-title,
+body.gps-live-mode #gpsTrackerPanel>#gpsMapHint,
+body.gps-live-mode #gpsTrackerPanel>label,
+body.gps-live-mode #gpsTrackerPanel>.per-activity-joint,
+body.gps-live-mode #gpsTrackerPanel>p.muted.tiny:last-child{display:none!important}
+body.gps-live-mode #gpsTrackerPanel:before{
+ content:"FITBROS  •  GPS";display:block;flex:0 0 auto;order:-1;
+ color:#ff6417;font-weight:900;letter-spacing:1.5px;font-size:clamp(.72rem,2vh,.9rem);line-height:1.1;
+}
 body.gps-live-mode #gpsTrackerPanel #gpsMap{
-  height:clamp(115px,20dvh,230px)!important;
-  min-height:0!important;max-height:25dvh!important;
-  flex:0 1 auto!important;order:0!important;
+ display:block!important;order:0!important;flex:0 1 23dvh!important;
+ width:100%!important;height:23dvh!important;min-height:95px!important;max-height:210px!important;
+ border:0!important;border-radius:12px!important;overflow:hidden!important;
 }
 body.gps-live-mode #gpsTrackerPanel .gps-stats{
-  flex:0 1 auto!important;min-height:0!important;
-  gap:0!important;margin:0!important;
+ order:1!important;display:grid!important;grid-template-columns:1fr 1fr!important;
+ grid-template-rows:auto auto!important;gap:0 8px!important;flex:1 1 auto!important;
+ min-height:0!important;margin:0!important;align-content:space-evenly!important;
 }
 body.gps-live-mode #gpsTrackerPanel .gps-stats>div{
-  min-height:0!important;padding:clamp(2px,.7vh,8px) 2px!important;gap:2px!important;
+ display:flex!important;min-width:0!important;min-height:0!important;
+ flex-direction:column!important;align-items:center!important;justify-content:center!important;
+ gap:3px!important;padding:clamp(2px,.6vh,7px) 1px!important;
+ border:0!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;
 }
-body.gps-live-mode #gpsTrackerPanel .gps-stats>div:first-child{padding-top:0!important}
-body.gps-live-mode #gpsTrackerPanel .gps-stats>div:first-child #gpsElapsed{
-  font-size:clamp(2.1rem,9vh,4.8rem)!important;line-height:1.05!important;letter-spacing:-1.5px!important;
+body.gps-live-mode #gpsTrackerPanel #gpsElapsed{
+ font-size:clamp(2rem,8.5vh,4.4rem)!important;line-height:1!important;
+ font-weight:900!important;letter-spacing:-1.5px!important;white-space:nowrap!important;
 }
 body.gps-live-mode #gpsTrackerPanel #gpsDistance{
-  font-size:clamp(3rem,14vh,5.8rem)!important;line-height:1!important;letter-spacing:-1px!important;
+ font-size:clamp(2.5rem,11vh,5rem)!important;line-height:1!important;
+ font-weight:900!important;letter-spacing:-1px!important;white-space:nowrap!important;
 }
 body.gps-live-mode #gpsTrackerPanel #gpsSpeed,
 body.gps-live-mode #gpsTrackerPanel #gpsPace{
-  font-size:clamp(1.45rem,6vh,2.8rem)!important;line-height:1.05!important;
+ font-size:clamp(1.2rem,4.5vh,2.2rem)!important;line-height:1.05!important;
+ font-weight:850!important;text-align:center!important;overflow-wrap:anywhere!important;
 }
 body.gps-live-mode #gpsTrackerPanel .gps-stats small{
-  font-size:clamp(.75rem,2.4vh,1rem)!important;line-height:1.1!important;
+ font-size:clamp(.72rem,2vh,.95rem)!important;line-height:1.1!important;color:#bdbdbd!important;
 }
 body.gps-live-mode #gpsStatus{
-  flex:0 0 auto!important;min-height:0!important;
-  margin:0!important;font-size:clamp(.75rem,2.3vh,.95rem)!important;line-height:1.25!important;
+ order:2!important;flex:0 0 auto!important;min-height:0!important;max-height:2.5em!important;
+ overflow:hidden!important;text-align:center!important;margin:0!important;
+ font-size:clamp(.68rem,1.8vh,.84rem)!important;line-height:1.2!important;color:#bdbdbd!important;
 }
 body.gps-live-mode #gpsTrackerPanel .gps-actions{
-  flex:0 0 auto!important;position:static!important;
-  margin-top:auto!important;padding:clamp(3px,.8vh,8px) 0 0!important;
-  gap:8px!important;background:#111!important;
+ order:3!important;display:grid!important;grid-template-columns:1fr 1fr!important;
+ grid-auto-rows:minmax(42px,auto)!important;gap:7px!important;flex:0 0 auto!important;
+ min-width:0!important;margin:0!important;padding:4px 0 0!important;
+ position:static!important;background:#111!important;
 }
 body.gps-live-mode #gpsTrackerPanel .gps-actions button{
-  min-height:clamp(46px,7.5vh,64px)!important;
-  padding:8px 6px!important;font-size:clamp(.9rem,2.8vh,1.05rem)!important;
+ display:flex!important;align-items:center!important;justify-content:center!important;
+ width:100%!important;min-width:0!important;min-height:clamp(42px,6.3vh,56px)!important;
+ max-height:58px!important;box-sizing:border-box!important;
+ padding:6px 5px!important;margin:0!important;border-radius:13px!important;
+ font-size:clamp(.78rem,2.3vh,.98rem)!important;line-height:1.15!important;
+ white-space:normal!important;overflow-wrap:anywhere!important;
 }
-@media(max-height:700px){
- body.gps-live-mode #gpsTrackerPanel #gpsMap{height:16dvh!important;max-height:18dvh!important}
- body.gps-live-mode #gpsTrackerPanel .gps-stats>div{padding:1px 2px!important}
- body.gps-live-mode #gpsTrackerPanel .gps-stats>div:first-child #gpsElapsed{font-size:clamp(2rem,7.5vh,3.2rem)!important}
- body.gps-live-mode #gpsTrackerPanel #gpsDistance{font-size:clamp(2.7rem,11vh,4rem)!important}
- body.gps-live-mode #gpsTrackerPanel #gpsSpeed,body.gps-live-mode #gpsTrackerPanel #gpsPace{font-size:clamp(1.35rem,4.8vh,2rem)!important}
- body.gps-live-mode #gpsTrackerPanel .gps-actions button{min-height:44px!important}
+body.gps-live-mode #gpsTrackerPanel #gpsStart{grid-column:1/-1!important}
+body.gps-live-mode #gpsTrackerPanel #gpsPause{background:#ff5700!important;color:#fff!important;border-color:#ff5700!important}
+body.gps-live-mode #gpsTrackerPanel #gpsFinish{background:#292929!important;color:#fff!important}
+body.gps-live-mode #gpsTrackerPanel #gpsDiscard{background:transparent!important;border-color:#444!important;color:#aaa!important}
+@media(max-height:680px){
+ body.gps-live-mode #gpsTrackerPanel #gpsMap{height:17dvh!important;flex-basis:17dvh!important;min-height:78px!important}
+ body.gps-live-mode #gpsTrackerPanel #gpsElapsed{font-size:clamp(1.8rem,7vh,3rem)!important}
+ body.gps-live-mode #gpsTrackerPanel #gpsDistance{font-size:clamp(2.3rem,9vh,3.8rem)!important}
+ body.gps-live-mode #gpsTrackerPanel #gpsSpeed,body.gps-live-mode #gpsTrackerPanel #gpsPace{font-size:clamp(1.1rem,4vh,1.7rem)!important}
+ body.gps-live-mode #gpsTrackerPanel .gps-actions{gap:5px!important}
+ body.gps-live-mode #gpsTrackerPanel .gps-actions button{min-height:40px!important;max-height:46px!important}
 }
