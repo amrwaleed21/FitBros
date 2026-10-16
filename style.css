@@ -748,3 +748,6 @@ body.gps-live-mode #gpsTrackerPanel > p.muted.tiny:last-child {
     font-size: clamp(1.5rem, 5.8dvh, 2.7rem) !important;
   }
 }
+
+/* Stable mobile activity history: filters must never resize/zoom the viewport. */
+html,body{max-width:100%;overflow-x:hidden}#app,.page,#activity,.activity-subsection,#activityLog,#activityHistoryLog{min-width:0;max-width:100%;box-sizing:border-box}#activityLog .log-item,#activityHistoryLog .log-item{min-width:0;max-width:100%;overflow-wrap:anywhere;word-break:normal}#activityLog .log-item>* ,#activityHistoryLog .log-item>*{min-width:0;max-width:100%}#activityLog .log-item strong,#activityHistoryLog .log-item strong,#activityLog .log-item small,#activityHistoryLog .log-item small{overflow-wrap:anywhere}#historySection .chips{position:static;top:auto;flex-wrap:wrap}#historySection .chip{flex:0 0 auto;min-height:40px}#activity.page:not(.hidden),#activityHistory.page:not(.hidden){transform:none}
