@@ -93,7 +93,7 @@ async function gpsReleaseWakeLock(){try{if(gps.wakeLock)await gps.wakeLock.relea
 function gpsPersistLive(){if(!gps.active)return;try{localStorage.setItem('fitbros_gps_incomplete_v1',JSON.stringify({kind:gps.kind,km:gps.km,elapsedMs:gpsElapsedMs(),points:gps.points.slice(-3000),last:gps.last,pending:gps.pending,savedAt:Date.now(),startedAt:gps.startAt,elapsedBeforePause:gps.elapsedBeforePause,active:true,gapEstimateKm:gps.gapEstimateKm}))}catch(e){}}
 function gpsRender(){const elapsed=gpsElapsedMs(),live=gpsLiveMetrics();if($('gpsDistance'))$('gpsDistance').textContent=gps.km.toFixed(2)+' كم';if($('gpsElapsed'))$('gpsElapsed').textContent=gpsFmtTime(elapsed);if($('gpsSpeed'))$('gpsSpeed').textContent=live.speed.toFixed(1)+' كم/س';if($('gpsPace'))$('gpsPace').textContent=live.pace+' دقيقة/كم';if($('gpsPaceLabel'))$('gpsPaceLabel').textContent=gps.kind==='run'?'Pace':'الوتيرة';if($('gpsStart'))$('gpsStart').disabled=gps.active&&!gps.paused;if($('gpsActivityType'))$('gpsActivityType').disabled=gps.active;if($('gpsPause')){$('gpsPause').disabled=!gps.active;$('gpsPause').textContent=gps.paused?'▶ استكمال':'⏸ إيقاف مؤقت'}if($('gpsFinish'))$('gpsFinish').disabled=!gps.active}
 function gpsStatus(t){if($('gpsStatus'))$('gpsStatus').textContent=t}
-function gpsInitMap(){if(gps.map||!window.L||!$('gpsMap'))return;const egyptBounds=L.latLngBounds([21.5,24.5],[31.9,36.9]);gps.map=L.map('gpsMap',{zoomControl:true,minZoom:5,maxZoom:19,maxBounds:egyptBounds.pad(.12),maxBoundsViscosity:.9,dragging:true,touchZoom:false,scrollWheelZoom:false,doubleClickZoom:true}).setView([30.0444,31.2357],6);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(gps.map);gps.polyline=L.polyline([],{color:'#ff6a00',weight:5,opacity:.9,lineCap:'round',lineJoin:'round'}).addTo(gps.map);setTimeout(()=>gps.map&&gps.map.invalidateSize(),250)}
+function gpsInitMap(){if(gps.map||!window.L||!$('gpsMap'))return;const egyptBounds=L.latLngBounds([21.5,24.5],[31.9,36.9]);gps.map=L.map('gpsMap',{zoomControl:true,minZoom:5,maxZoom:19,maxBounds:egyptBounds.pad(.12),maxBoundsViscosity:.9,dragging:true,touchZoom:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:true}).setView([30.0444,31.2357],6);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(gps.map);gps.polyline=L.polyline([],{color:'#ff6a00',weight:5,opacity:.9,lineCap:'round',lineJoin:'round'}).addTo(gps.map);setTimeout(()=>gps.map&&gps.map.invalidateSize(),250)}
 function gpsMoveMarker(p){gpsInitMap();if(!gps.map||!p)return;const ll=[p.lat,p.lon];if(gps.markers.length===0){gps.markers.push(L.circleMarker(ll,{radius:7,color:'#fff',weight:2,fillColor:'#19c37d',fillOpacity:1}).addTo(gps.map));const z=Math.max(15,gps.map.getZoom());gps.map.setView(ll,z,{animate:false});}else gps.markers[0].setLatLng(ll);if($('gpsMapHint'))$('gpsMapHint').textContent=`تم استقبال الموقع · دقة ${Math.round(p.accuracy||0)}م · نقاط المسار ${gps.points.length}.`}
 function gpsMapPoint(p){gpsInitMap();if(!gps.map||!p)return;gps.polyline.addLatLng([p.lat,p.lon]);gpsMoveMarker(p);if($('gpsMapHint'))$('gpsMapHint').textContent=`تم تسجيل ${gps.points.length} نقطة في المسار.`}
 function gpsStartPolling(){if(gps.pollTimer)clearInterval(gps.pollTimer);gps.pollTimer=setInterval(()=>{if(!gps.active||gps.paused||!navigator.geolocation)return;navigator.geolocation.getCurrentPosition(gpsPosition,gpsError,{enableHighAccuracy:true,maximumAge:0,timeout:15000})},2000)}
@@ -135,23 +135,28 @@ function gpsPosition(pos){
  const c=pos&&pos.coords,now=Number(pos&&pos.timestamp)||Date.now();
  if(!c||!Number.isFinite(c.latitude)||!Number.isFinite(c.longitude)){gpsStatus('⚠️ قراءة الموقع غير صالحة؛ ننتظر تحديثًا جديدًا.');gpsRender();return}
  const accuracy=Number(c.accuracy)||999,point={lat:Number(c.latitude),lon:Number(c.longitude),at:now,accuracy,altitude:Number.isFinite(c.altitude)?Number(c.altitude):null,speed:Number.isFinite(c.speed)?Number(c.speed):null};gps.lastFixAt=Date.now();
- if(accuracy<=150)gpsMoveMarker(point);
- // Anchor the session on its very first fix, even if it is initially rough, so startup is not delayed.
- if(!gps.last){if(accuracy>200){gpsStatus(`📡 إشارة البداية ضعيفة (${Math.round(accuracy)}م)؛ ننتظر موقعًا أدق.`);gpsRender();return}gps.last=point;gps.points.push(point);gpsMapPoint(point);gpsStatus(`📍 تم تثبيت نقطة البداية · دقة ${Math.round(accuracy)}م. جاري حساب المسافة من أول حركة.`);gpsPersistLive();gpsRender();return}
- if(accuracy>100){gpsStatus(`📡 دقة GPS ضعيفة (${Math.round(accuracy)}م). ننتظر قراءة أوضح.`);gpsRender();return}
- const dt=(now-gps.last.at)/1000;if(!Number.isFinite(dt)||dt<1.5)return;
+ // Reject weak fixes before moving the marker or drawing a line; poor accuracy is the main source of stationary GPS jumps.
+ if(accuracy>35){gpsStatus(`📡 دقة GPS ضعيفة (${Math.round(accuracy)}م). لم نضف المسافة؛ ننتظر قراءة أدق.`);gpsRender();return}
+ if(!gps.last){gps.last=point;gps.points.push(point);gpsMapPoint(point);gpsStatus(`📍 تم تثبيت نقطة البداية · دقة ${Math.round(accuracy)}م. جاري حساب المسافة من الحركة الفعلية.`);gpsPersistLive();gpsRender();return}
+ const dt=(now-gps.last.at)/1000;if(!Number.isFinite(dt)||dt<2)return;
  const meters=gpsHaversine(gps.last,point)*1000;if(!Number.isFinite(meters)||meters<0)return;
- // Keep GPS distance when the user speeds up into a run during a walk recording.
- const maxKmh=24;
- const noiseFloor=Math.max(1.5,Math.min(3.8,accuracy*0.045));
+ // Allow walking and running, but never add a large GPS jump while the user is stationary.
+ const maxKmh=22;
+ const noiseFloor=Math.max(3,Math.min(6,Math.max(accuracy,Number(gps.last.accuracy)||accuracy)*0.16));
  const speedKmh=meters/Math.max(dt,1)*3.6;
- // If the browser was suspended, count only a plausible straight-line gap estimate on resume.
- // A web page cannot reconstruct the exact route while Android has stopped delivering GPS fixes.
- if(dt>=5){const plausibleMax=(maxKmh/3.6)*dt+Math.max(18,accuracy*0.75);if(meters>=noiseFloor&&meters<=plausibleMax){const d=gpsHaversine(gps.last,point);gps.km+=d;gps.gapEstimateKm=(gps.gapEstimateKm||0)+d;gps.last=point;gps.pending=null;gps.points.push(point);gps.points=gps.points.slice(-3000);gpsMapPoint(point);gpsStatus(`تم احتساب المسافة بين آخر نقطة والعودة (${Math.round(meters)}م) بعد انقطاع GPS.`);gpsPersistLive();gpsRender();return}if(meters>plausibleMax){gps.last=point;gps.pending=null;gpsStatus('📡 فرق الموقع بعد الانقطاع أكبر من حد آمن؛ تم تحديث نقطة البداية لتجنب إضافة قفزة GPS وهمية.');gpsPersistLive();gpsRender();return}}
- if(speedKmh>maxKmh){gps.pending=null;if(dt>=8)gps.last=point;gpsStatus(`📡 تجاهلنا قفزة GPS غير منطقية (${Math.round(meters)}م)؛ ننتظر قراءة مستقرة.`);gpsRender();return}
- // Keep the previous anchor during tiny movements so real distance accumulates rather than disappearing.
- if(meters<noiseFloor){gpsStatus('📡 جاري تثبيت إشارة GPS وتجميع الحركة الصغيرة.');gpsRender();return}
- const d=gpsHaversine(gps.last,point);if(d>0&&d<0.08){gps.km+=d;gps.last=point;gps.pending=null;gps.points.push(point);gps.points=gps.points.slice(-3000);gpsMapPoint(point);gpsStatus(`✅ حركة مسجلة · ${gps.km.toFixed(3)} كم · دقة ${Math.round(accuracy)}م`);gpsPersistLive()}else{gps.last=point;gps.pending=null;gpsStatus('📍 تم تجاهل حركة غير موثوقة وانتظار نقطة جديدة.');gpsPersistLive()}
+ const uncertaintyAllowance=Math.max(3,Math.min(6,((Number(gps.last.accuracy)||accuracy)+accuracy)*0.12));
+ const plausibleMax=(maxKmh/3.6)*dt+uncertaintyAllowance;
+ if(meters>plausibleMax){
+   // Advance the anchor only after a large jump so later good fixes can recover, but don't draw/count the jump.
+   gps.last=point;gps.pending=null;
+   gpsStatus(`📡 تجاهلنا قفزة GPS غير منطقية (${Math.round(meters)}م خلال ${Math.round(dt)}ث)؛ لم تُضف للمسافة.`);gpsPersistLive();gpsRender();return;
+ }
+ // Tiny coordinate drift is ignored and does not move the anchor, preventing accumulated stationary jitter.
+ if(meters<noiseFloor){gpsStatus('📡 حركة صغيرة ضمن هامش خطأ GPS؛ لم نضف مسافة.');gpsRender();return}
+ if(speedKmh>maxKmh){gps.last=point;gps.pending=null;gpsStatus(`📡 تجاهلنا قفزة GPS غير منطقية (${Math.round(meters)}م)؛ لم تُضف للمسافة.`);gpsPersistLive();gpsRender();return}
+ const d=gpsHaversine(gps.last,point);
+ if(d>0&&d<0.08){gps.km+=d;gps.last=point;gps.pending=null;gps.points.push(point);gps.points=gps.points.slice(-3000);gpsMapPoint(point);gpsStatus(`✅ حركة مسجلة · ${gps.km.toFixed(3)} كم · دقة ${Math.round(accuracy)}م`);gpsPersistLive()}
+ else{gps.last=point;gps.pending=null;gpsStatus('📍 تم تجاهل حركة غير موثوقة وانتظار نقطة جديدة.');gpsPersistLive()}
  gpsRender();
 }
 function gpsHaversine(a,b){const rad=x=>x*Math.PI/180,R=6371,dLat=rad(b.lat-a.lat),dLon=rad(b.lon-a.lon),v=Math.sin(dLat/2)**2+Math.cos(rad(a.lat))*Math.cos(rad(b.lat))*Math.sin(dLon/2)**2;return 2*R*Math.asin(Math.min(1,Math.sqrt(v)))}
@@ -503,7 +508,7 @@ function renderSavedRoutes(){
  const status=document.getElementById('savedRoutesStatus');
  if(!window.L){if(status)status.textContent='تعذر تحميل مكتبة الخريطة. تأكد من اتصال الإنترنت ثم أعد فتح الصفحة.';return;}
  if(!savedRoutesMap){
-  savedRoutesMap=L.map(mapEl,{zoomControl:true,dragging:true,touchZoom:false,scrollWheelZoom:false,doubleClickZoom:true,tap:true}).setView([30.0444,31.2357],12);
+  savedRoutesMap=L.map(mapEl,{zoomControl:true,dragging:true,touchZoom:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:true,tap:true}).setView([30.0444,31.2357],12);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(savedRoutesMap);
   savedRoutesMap.on('tileerror',()=>{if(status)status.textContent='تعذر تحميل خلفية الشوارع حاليًا؛ تحقق من الإنترنت. خطوط المسارات تظهر عند توفر نقاط GPS.'});
  }
