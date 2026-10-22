@@ -120,7 +120,14 @@ async function gpsStart(){
  if($('gpsStart'))$('gpsStart').disabled=true;
  try{
   if(navigator.permissions?.query){try{const perm=await navigator.permissions.query({name:'geolocation'});if(perm.state==='denied')throw new Error('إذن الموقع مرفوض. فعّله من إعدادات التطبيق.')}catch(e){if(e.message&&e.message.includes('إذن الموقع'))throw e;}}
-  // Start the session immediately; do not wait up to 15 seconds for the first GPS fix.
+  // Give the GPS sensor three seconds to settle before timing the activity.
+  // The timer and distance start only after the countdown has finished.
+  for(let remaining=3;remaining>0;remaining--){
+   gpsStatus(`استعد ${gps.kind==='walk'?'للمشي':'للجري'}… يبدأ التسجيل بعد ${remaining} ثوانٍ`);
+   if($('gpsStart'))$('gpsStart').textContent=`⏳ ${remaining}`;
+   await new Promise(resolve=>setTimeout(resolve,1000));
+  }
+  // Start the session after the countdown; wait for a reliable GPS fix as usual.
   gps.kind=$('gpsActivityType')?.value||'run';gpsInitMap();gpsResetMap();document.body.classList.add('gps-live-mode');
   gps.active=true;gps.paused=false;gps.km=0;gps.last=null;gps.points=[];gps.pending=null;gps.gapEstimateKm=0;gps.lastFixAt=0;gps.startAt=Date.now();gps.elapsedBeforePause=0;
   gps.watchId=navigator.geolocation.watchPosition(gpsPosition,gpsError,{enableHighAccuracy:true,maximumAge:0,timeout:20000});
@@ -128,7 +135,7 @@ async function gpsStart(){
   gpsStartPolling();gpsAcquireWakeLock();gps.timer=setInterval(()=>{gpsRender();gpsPersistLive();gpsUpdateWebNotification()},1000);gpsUpdateWebNotification(true);
   gpsStatus('🔎 التسجيل بدأ والوقت يعمل الآن؛ جاري تثبيت أول نقطة GPS.');gpsRender();
  }catch(err){gps.active=false;gps.paused=false;if(gps.timer)clearInterval(gps.timer);if(gps.pollTimer)clearInterval(gps.pollTimer);gps.pollTimer=null;gps.timer=null;if(gps.watchId!==null)navigator.geolocation.clearWatch(gps.watchId);gps.watchId=null;gpsStatus('❌ لم يبدأ التسجيل: '+(err.message||'تحقق من إذن الموقع وGPS.'));gpsRender();}
- finally{if($('gpsStart'))$('gpsStart').disabled=gps.active&&!gps.paused}
+ finally{if($('gpsStart')){ $('gpsStart').textContent='▶ بدء التسجيل'; $('gpsStart').disabled=gps.active&&!gps.paused }}
 }
 function gpsPosition(pos){
  if(!gps.active||gps.paused)return;
