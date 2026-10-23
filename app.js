@@ -87,7 +87,7 @@ function gpsFmtTime(ms){let sec=Math.floor(ms/1000),h=Math.floor(sec/3600),m=Mat
 function gpsFmtPace(km,ms){if(km<=0||ms<=0)return '—';let pace=(ms/60000)/km;if(!Number.isFinite(pace)||pace>99||pace<1.5)return '—';let m=Math.floor(pace),sec=Math.round((pace-m)*60);if(sec===60){m++;sec=0}return `${m}:${String(sec).padStart(2,'0')}`}
 // Live average pace and speed use elapsed session time divided by accepted distance.
 // This avoids unstable pace values from tiny GPS movements and matches the saved activity math.
-function gpsLiveMetrics(){const elapsed=gpsElapsedMs(),distance=Math.max(0,Number(gps.km)||0);const recentAge=Date.now()-(Number(gps.lastMovementAt)||0);/* Show current speed, not average speed: if no accepted movement recently, the user is effectively stopped. */const speed=(!gps.active||gps.paused||!gps.lastMovementAt||recentAge>8000)?0:Math.max(0,Number(gps.recentSpeedKmh)||0);return {pace:gpsFmtPace(distance,elapsed),speed:Number.isFinite(speed)?speed:0}}
+function gpsLiveMetrics(){const elapsed=gpsElapsedMs(),distance=Math.max(0,Number(gps.km)||0);const recentAge=Date.now()-(Number(gps.lastMovementAt)||0);/* Show current speed, not average speed: if no accepted movement recently, the user is effectively stopped. */const speed=(!gps.active||gps.paused||!gps.lastMovementAt||recentAge>6000)?0:Math.max(0,Number(gps.recentSpeedKmh)||0);return {pace:gpsFmtPace(distance,elapsed),speed:Number.isFinite(speed)?speed:0}}
 async function gpsAcquireWakeLock(){try{if('wakeLock' in navigator&&!gps.wakeLock)gps.wakeLock=await navigator.wakeLock.request('screen');}catch(e){/* Device/browser does not support Wake Lock. */}}
 async function gpsReleaseWakeLock(){try{if(gps.wakeLock)await gps.wakeLock.release()}catch(e){}gps.wakeLock=null}
 function gpsPersistLive(){if(!gps.active)return;try{localStorage.setItem('fitbros_gps_incomplete_v1',JSON.stringify({kind:gps.kind,km:gps.km,elapsedMs:gpsElapsedMs(),points:gps.points.slice(-3000),last:gps.last,pending:gps.pending,savedAt:Date.now(),startedAt:gps.startAt,elapsedBeforePause:gps.elapsedBeforePause,active:true,gapEstimateKm:gps.gapEstimateKm}))}catch(e){}}
@@ -141,17 +141,24 @@ function gpsPosition(pos){
  if(!gps.active||gps.paused)return;
  const c=pos&&pos.coords,now=Number(pos&&pos.timestamp)||Date.now();
  if(!c||!Number.isFinite(c.latitude)||!Number.isFinite(c.longitude)){gpsStatus('⚠️ قراءة الموقع غير صالحة؛ ننتظر تحديثًا جديدًا.');gpsRender();return}
- const accuracy=Number(c.accuracy)||999,point={lat:Number(c.latitude),lon:Number(c.longitude),at:now,accuracy,altitude:Number.isFinite(c.altitude)?Number(c.altitude):null,speed:Number.isFinite(c.speed)?Number(c.speed):null};gps.lastFixAt=Date.now();
+ const accuracy=Number(c.accuracy)||999,reportedSpeed=Number.isFinite(c.speed)&&c.speed>=0?Number(c.speed):null,point={lat:Number(c.latitude),lon:Number(c.longitude),at:now,accuracy,altitude:Number.isFinite(c.altitude)?Number(c.altitude):null,speed:reportedSpeed};gps.lastFixAt=Date.now();
  // Reject weak fixes before moving the marker or drawing a line; poor accuracy is the main source of stationary GPS jumps.
- if(accuracy>35){gpsStatus(`📡 دقة GPS ضعيفة (${Math.round(accuracy)}م). لم نضف المسافة؛ ننتظر قراءة أدق.`);gpsRender();return}
+ if(accuracy>25){gpsStatus(`📡 دقة GPS ضعيفة (${Math.round(accuracy)}م). لم نضف المسافة؛ ننتظر قراءة أدق.`);gpsRender();return}
  if(!gps.last){gps.last=point;gps.points.push(point);gpsMapPoint(point);gpsStatus(`📍 تم تثبيت نقطة البداية · دقة ${Math.round(accuracy)}م. جاري حساب المسافة من الحركة الفعلية.`);gpsPersistLive();gpsRender();return}
  const dt=(now-gps.last.at)/1000;if(!Number.isFinite(dt)||dt<2)return;
  const meters=gpsHaversine(gps.last,point)*1000;if(!Number.isFinite(meters)||meters<0)return;
  // Allow walking and running, but never add a large GPS jump while the user is stationary.
  const maxKmh=gps.kind==='run'?22:10;
- const noiseFloor=Math.max(9,Math.min(14,Math.max(accuracy,Number(gps.last.accuracy)||accuracy)*0.30));
+ const combinedAccuracy=Math.max(accuracy,Number(gps.last.accuracy)||accuracy);
+ // A stricter movement threshold prevents normal GPS drift from accumulating while standing.
+ const noiseFloor=Math.max(12,Math.min(20,combinedAccuracy*0.65));
  const speedKmh=meters/Math.max(dt,1)*3.6;
- const uncertaintyAllowance=Math.max(4,Math.min(7,((Number(gps.last.accuracy)||accuracy)+accuracy)*0.12));
+ const uncertaintyAllowance=Math.max(3,Math.min(6,((Number(gps.last.accuracy)||accuracy)+accuracy)*0.10));
+ // When Android supplies its own speed estimate, treat a near-zero reading as evidence of standing still.
+ if(reportedSpeed!==null && reportedSpeed<0.45 && meters<Math.max(22,combinedAccuracy*1.2)){
+   gps.recentSpeedKmh=0;gps.lastMovementAt=0;
+   gpsStatus('📍 GPS شايفك ثابت تقريبًا؛ تجاهلنا اهتزاز الموقع.');gpsRender();return;
+ }
  const plausibleMax=(maxKmh/3.6)*dt+uncertaintyAllowance;
  if(meters>plausibleMax){
    // Advance the anchor only after a large jump so later good fixes can recover, but don't draw/count the jump.
@@ -159,10 +166,10 @@ function gpsPosition(pos){
    gpsStatus(`📡 تجاهلنا قفزة GPS غير منطقية (${Math.round(meters)}م خلال ${Math.round(dt)}ث)؛ لم تُضف للمسافة.`);gpsPersistLive();gpsRender();return;
  }
  // Tiny coordinate drift is ignored and does not move the anchor, preventing accumulated stationary jitter.
- if(meters<noiseFloor){gpsStatus('📡 تجاهلنا اهتزاز GPS الصغير؛ لم نضف مسافة أو سرعة وهمية.');gpsRender();return}
- if(speedKmh>maxKmh){gps.last=point;gps.pending=null;gpsStatus(`📡 تجاهلنا قفزة GPS غير منطقية (${Math.round(meters)}م)؛ لم تُضف للمسافة.`);gpsPersistLive();gpsRender();return}
+ if(meters<noiseFloor){if(Date.now()-(Number(gps.lastMovementAt)||0)>6000){gps.recentSpeedKmh=0;gps.lastMovementAt=0;}gpsStatus('📡 تجاهلنا اهتزاز GPS الصغير؛ لم نضف مسافة أو سرعة وهمية.');gpsRender();return}
+ if(speedKmh>maxKmh){gps.last=point;gps.pending=null;gps.recentSpeedKmh=0;gps.lastMovementAt=0;gpsStatus(`📡 تجاهلنا قفزة GPS غير منطقية (${Math.round(meters)}م)؛ لم تُضف للمسافة.`);gpsPersistLive();gpsRender();return}
  const d=gpsHaversine(gps.last,point);
- if(d>0&&d<0.08){gps.km+=d;gps.last=point;gps.pending=null;gps.lastMovementAt=Date.now();gps.recentSpeedKmh=speedKmh;gps.points.push(point);gps.points=gps.points.slice(-3000);gpsMapPoint(point);gpsStatus(`✅ حركة مسجلة · ${gps.km.toFixed(3)} كم · دقة ${Math.round(accuracy)}م`);gpsPersistLive()}
+ if(d>0&&d<0.08){gps.km+=d;gps.last=point;gps.pending=null;gps.lastMovementAt=Date.now();gps.recentSpeedKmh=(reportedSpeed!==null&&reportedSpeed>=0.45)?Math.min(maxKmh,reportedSpeed*3.6):speedKmh;gps.points.push(point);gps.points=gps.points.slice(-3000);gpsMapPoint(point);gpsStatus(`✅ حركة مسجلة · ${gps.km.toFixed(3)} كم · دقة ${Math.round(accuracy)}م`);gpsPersistLive()}
  else{gps.last=point;gps.pending=null;gpsStatus('📍 تم تجاهل حركة غير موثوقة وانتظار نقطة جديدة.');gpsPersistLive()}
  gpsRender();
 }
