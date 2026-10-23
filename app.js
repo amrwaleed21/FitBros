@@ -93,7 +93,7 @@ async function gpsReleaseWakeLock(){try{if(gps.wakeLock)await gps.wakeLock.relea
 function gpsPersistLive(){if(!gps.active)return;try{localStorage.setItem('fitbros_gps_incomplete_v1',JSON.stringify({kind:gps.kind,km:gps.km,elapsedMs:gpsElapsedMs(),points:gps.points.slice(-3000),last:gps.last,pending:gps.pending,savedAt:Date.now(),startedAt:gps.startAt,elapsedBeforePause:gps.elapsedBeforePause,active:true,gapEstimateKm:gps.gapEstimateKm}))}catch(e){}}
 function gpsRender(){const elapsed=gpsElapsedMs(),live=gpsLiveMetrics();if($('gpsDistance'))$('gpsDistance').textContent=gps.km.toFixed(2)+' كم';if($('gpsElapsed'))$('gpsElapsed').textContent=gpsFmtTime(elapsed);if($('gpsSpeed'))$('gpsSpeed').textContent=live.speed.toFixed(1)+' كم/س';if($('gpsPace'))$('gpsPace').textContent=live.pace+' دقيقة/كم';if($('gpsPaceLabel'))$('gpsPaceLabel').textContent=gps.kind==='run'?'Pace':'الوتيرة';if($('gpsStart'))$('gpsStart').disabled=gps.active&&!gps.paused;if($('gpsActivityType'))$('gpsActivityType').disabled=gps.active;if($('gpsPause')){$('gpsPause').disabled=!gps.active;$('gpsPause').textContent=gps.paused?'▶ استكمال':'⏸ إيقاف مؤقت'}if($('gpsFinish'))$('gpsFinish').disabled=!gps.active}
 function gpsStatus(t){if($('gpsStatus'))$('gpsStatus').textContent=t}
-function gpsInitMap(){if(gps.map||!window.L||!$('gpsMap'))return;const egyptBounds=L.latLngBounds([21.5,24.5],[31.9,36.9]);gps.map=L.map('gpsMap',{zoomControl:true,minZoom:5,maxZoom:19,maxBounds:egyptBounds.pad(.12),maxBoundsViscosity:.9,dragging:true,touchZoom:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:true}).setView([30.0444,31.2357],6);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(gps.map);gps.polyline=L.polyline([],{color:'#ff6a00',weight:5,opacity:.9,lineCap:'round',lineJoin:'round'}).addTo(gps.map);setTimeout(()=>gps.map&&gps.map.invalidateSize(),250)}
+function gpsInitMap(){if(gps.map||!window.L||!$('gpsMap'))return;const egyptBounds=L.latLngBounds([21.5,24.5],[31.9,36.9]);gps.map=L.map('gpsMap',{zoomControl:true,minZoom:5,maxZoom:19,maxBounds:egyptBounds.pad(.12),maxBoundsViscosity:.9,dragging:true,touchZoom:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:true,tap:false}).setView([30.0444,31.2357],6);L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(gps.map);gps.polyline=L.polyline([],{color:'#ff6a00',weight:5,opacity:.9,lineCap:'round',lineJoin:'round'}).addTo(gps.map);setTimeout(()=>gps.map&&gps.map.invalidateSize(),250)}
 function gpsMoveMarker(p){gpsInitMap();if(!gps.map||!p)return;const ll=[p.lat,p.lon];if(gps.markers.length===0){gps.markers.push(L.circleMarker(ll,{radius:7,color:'#fff',weight:2,fillColor:'#19c37d',fillOpacity:1}).addTo(gps.map));const z=Math.max(15,gps.map.getZoom());gps.map.setView(ll,z,{animate:false});}else gps.markers[0].setLatLng(ll);if($('gpsMapHint'))$('gpsMapHint').textContent=`تم استقبال الموقع · دقة ${Math.round(p.accuracy||0)}م · نقاط المسار ${gps.points.length}.`}
 function gpsMapPoint(p){gpsInitMap();if(!gps.map||!p)return;gps.polyline.addLatLng([p.lat,p.lon]);gpsMoveMarker(p);if($('gpsMapHint'))$('gpsMapHint').textContent=`تم تسجيل ${gps.points.length} نقطة في المسار.`}
 function gpsStartPolling(){if(gps.pollTimer)clearInterval(gps.pollTimer);gps.pollTimer=setInterval(()=>{if(!gps.active||gps.paused||!navigator.geolocation)return;navigator.geolocation.getCurrentPosition(gpsPosition,gpsError,{enableHighAccuracy:true,maximumAge:0,timeout:15000})},2000)}
@@ -149,9 +149,9 @@ function gpsPosition(pos){
  const meters=gpsHaversine(gps.last,point)*1000;if(!Number.isFinite(meters)||meters<0)return;
  // Allow walking and running, but never add a large GPS jump while the user is stationary.
  const maxKmh=22;
- const noiseFloor=Math.max(3,Math.min(6,Math.max(accuracy,Number(gps.last.accuracy)||accuracy)*0.16));
+ const noiseFloor=Math.max(6,Math.min(10,Math.max(accuracy,Number(gps.last.accuracy)||accuracy)*0.22));
  const speedKmh=meters/Math.max(dt,1)*3.6;
- const uncertaintyAllowance=Math.max(3,Math.min(6,((Number(gps.last.accuracy)||accuracy)+accuracy)*0.12));
+ const uncertaintyAllowance=Math.max(5,Math.min(10,((Number(gps.last.accuracy)||accuracy)+accuracy)*0.18));
  const plausibleMax=(maxKmh/3.6)*dt+uncertaintyAllowance;
  if(meters>plausibleMax){
    // Advance the anchor only after a large jump so later good fixes can recover, but don't draw/count the jump.
@@ -159,7 +159,7 @@ function gpsPosition(pos){
    gpsStatus(`📡 تجاهلنا قفزة GPS غير منطقية (${Math.round(meters)}م خلال ${Math.round(dt)}ث)؛ لم تُضف للمسافة.`);gpsPersistLive();gpsRender();return;
  }
  // Tiny coordinate drift is ignored and does not move the anchor, preventing accumulated stationary jitter.
- if(meters<noiseFloor){gpsStatus('📡 حركة صغيرة ضمن هامش خطأ GPS؛ لم نضف مسافة.');gpsRender();return}
+ if(meters<noiseFloor){gpsStatus('📡 تجاهلنا اهتزاز GPS الصغير؛ لم نضف مسافة أو سرعة وهمية.');gpsRender();return}
  if(speedKmh>maxKmh){gps.last=point;gps.pending=null;gpsStatus(`📡 تجاهلنا قفزة GPS غير منطقية (${Math.round(meters)}م)؛ لم تُضف للمسافة.`);gpsPersistLive();gpsRender();return}
  const d=gpsHaversine(gps.last,point);
  if(d>0&&d<0.08){gps.km+=d;gps.last=point;gps.pending=null;gps.points.push(point);gps.points=gps.points.slice(-3000);gpsMapPoint(point);gpsStatus(`✅ حركة مسجلة · ${gps.km.toFixed(3)} كم · دقة ${Math.round(accuracy)}م`);gpsPersistLive()}
@@ -515,7 +515,7 @@ function renderSavedRoutes(){
  const status=document.getElementById('savedRoutesStatus');
  if(!window.L){if(status)status.textContent='تعذر تحميل مكتبة الخريطة. تأكد من اتصال الإنترنت ثم أعد فتح الصفحة.';return;}
  if(!savedRoutesMap){
-  savedRoutesMap=L.map(mapEl,{zoomControl:true,dragging:true,touchZoom:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:true,tap:true}).setView([30.0444,31.2357],12);
+  savedRoutesMap=L.map(mapEl,{zoomControl:true,dragging:true,touchZoom:false,scrollWheelZoom:false,doubleClickZoom:false,boxZoom:false,keyboard:true,tap:false}).setView([30.0444,31.2357],12);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(savedRoutesMap);
   savedRoutesMap.on('tileerror',()=>{if(status)status.textContent='تعذر تحميل خلفية الشوارع حاليًا؛ تحقق من الإنترنت. خطوط المسارات تظهر عند توفر نقاط GPS.'});
  }
